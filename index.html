@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alice ABM Workflows — 11x Prototype</title>
+<style>
+/* ─── 11x Design Tokens ─── */
+:root {
+  --shell-bg: #121416;
+  --shell-bg-end: #1a1c1e;
+  --surface: #FFFFFF;
+  --surface-warm: #F6F3EA;
+  --surface-warm-2: #F0ECE2;
+  --border: #E7E3DA;
+  --border-light: #F0ECE6;
+  --text-primary: #1E2321;
+  --text-secondary: #4A5350;
+  --text-muted: #6B7370;
+  --text-light: #9CA3A0;
+  --accent: #2E6F6B;
+  --accent-hover: #245C58;
+  --accent-light: rgba(46,111,107,0.08);
+  --accent-lighter: rgba(46,111,107,0.04);
+  --success: #3A8B66;
+  --success-bg: rgba(58,139,102,0.08);
+  --warning: #C4880D;
+  --warning-bg: rgba(196,136,13,0.08);
+  --danger: #C44D4D;
+  --danger-bg: rgba(196,77,77,0.08);
+  --signal-hot: #E8553A;
+  --signal-warm: #D4922A;
+  --signal-cold: #8B9A96;
+  --radius-xl: 24px;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --radius-pill: 100px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-modal: 0 16px 48px rgba(0,0,0,0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --transition-fast: 150ms ease;
+  --transition-med: 220ms ease;
+}
+
+/* ─── Reset ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  font-family: var(--font);
+  background: linear-gradient(135deg, var(--shell-bg), var(--shell-bg-end));
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select, textarea { font-family: inherit; }
+
+/* ─── Layout ─── */
+.app { display: flex; width: 100%; min-height: 100vh; }
+
+/* ─── Sidebar ─── */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--shell-bg);
+  border-right: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 12px;
+}
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 16px;
+}
+.sidebar-logo .logo-mark {
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 13px;
+}
+.sidebar-logo span {
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.3px;
+}
+.sidebar-logo .badge {
+  font-size: 10px;
+  color: var(--accent);
+  background: rgba(46,111,107,0.15);
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+}
+.sidebar-section {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(255,255,255,0.3);
+  padding: 12px 12px 6px;
+}
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  color: rgba(255,255,255,0.5);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  position: relative;
+}
+.sidebar-item:hover { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.8); }
+.sidebar-item.active { background: rgba(46,111,107,0.12); color: #fff; }
+.sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+.sidebar-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+.sidebar-item .count {
+  margin-left: auto;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 600;
+}
+.sidebar-bottom { margin-top: auto; }
+
+/* ─── Main Content ─── */
+.main {
+  flex: 1;
+  padding: 16px 16px 16px 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.content-surface {
+  flex: 1;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Page Header ─── */
+.page-header {
+  padding: 28px 32px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.page-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+.page-header p {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+.page-header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* ─── Buttons ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { background: var(--surface-warm); }
+.btn-ghost {
+  color: var(--text-muted);
+  padding: 8px 10px;
+}
+.btn-ghost:hover { color: var(--text-primary); background: rgba(0,0,0,0.03); }
+.btn svg { width: 16px; height: 16px; }
+
+/* ─── Stats Bar ─── */
+.stats-bar {
+  display: flex;
+  gap: 1px;
+  padding: 20px 32px;
+  background: var(--surface);
+}
+.stat-card {
+  flex: 1;
+  padding: 16px 20px;
+  background: var(--surface-warm);
+  border-radius: var(--radius-md);
+}
+.stat-card:first-child { border-radius: var(--radius-md) var(--radius-sm) var(--radius-sm) var(--radius-md); }
+.stat-card:last-child { border-radius: var(--radius-sm) var(--radius-md) var(--radius-md) var(--radius-sm); }
+.stat-card + .stat-card { margin-left: 8px; }
+.stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); margin-top: 4px; letter-spacing: -0.5px; }
+.stat-change { font-size: 11px; font-weight: 600; margin-top: 2px; }
+.stat-change.up { color: var(--success); }
+.stat-change.down { color: var(--danger); }
+
+/* ─── Toolbar ─── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 32px 16px;
+}
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-warm);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  flex: 1;
+  max-width: 320px;
+  transition: border-color var(--transition-fast);
+}
+.search-input:focus-within { border-color: var(--accent); }
+.search-input svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+.search-input input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--text-primary);
+  width: 100%;
+}
+.search-input input::placeholder { color: var(--text-light); }
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: all var(--transition-fast);
+}
+.filter-btn:hover { background: var(--surface-warm); }
+.filter-btn.active { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+.filter-btn svg { width: 14px; height: 14px; }
+
+/* ─── Tabs ─── */
+.tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 32px;
+  border-bottom: 1px solid var(--border-light);
+}
+.tab {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+.tab:hover { color: var(--text-primary); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ─── Table ─── */
+.table-wrap { flex: 1; overflow: auto; padding: 0 32px 24px; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+  padding: 12px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+}
+thead th:last-child { text-align: right; }
+tbody tr {
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+tbody tr:hover { background: var(--accent-lighter); }
+tbody td {
+  padding: 14px 12px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: middle;
+}
+tbody td:last-child { text-align: right; }
+.account-name { font-weight: 600; color: var(--text-primary); }
+.account-domain { color: var(--text-muted); font-size: 12px; }
+.account-cell { display: flex; flex-direction: column; gap: 2px; }
+
+/* ─── Signal Score ─── */
+.signal-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 13px;
+}
+.signal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.signal-hot .signal-dot { background: var(--signal-hot); }
+.signal-hot { color: var(--signal-hot); }
+.signal-warm .signal-dot { background: var(--signal-warm); }
+.signal-warm { color: var(--signal-warm); }
+.signal-cold .signal-dot { background: var(--signal-cold); }
+.signal-cold { color: var(--signal-cold); }
+
+/* ─── Badges ─── */
+.badge-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-engaged { background: var(--success-bg); color: var(--success); }
+.badge-prospecting { background: var(--accent-light); color: var(--accent); }
+.badge-new { background: var(--surface-warm); color: var(--text-muted); }
+.badge-paused { background: var(--warning-bg); color: var(--warning); }
+
+/* ─── Progress Mini ─── */
+.progress-mini { display: flex; align-items: center; gap: 8px; }
+.progress-track {
+  flex: 1;
+  height: 4px;
+  background: var(--border-light);
+  border-radius: 2px;
+  max-width: 80px;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.progress-label { font-size: 12px; color: var(--text-muted); font-weight: 600; min-width: 28px; }
+
+/* ─── Account Detail ─── */
+.detail-layout { display: flex; flex: 1; overflow: hidden; }
+.detail-left {
+  width: 360px;
+  min-width: 360px;
+  border-right: 1px solid var(--border-light);
+  overflow-y: auto;
+  padding: 28px 24px;
+}
+.detail-right { flex: 1; overflow-y: auto; padding: 28px 32px; }
+
+.detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: color var(--transition-fast);
+}
+.detail-back:hover { color: var(--text-primary); }
+.detail-back svg { width: 14px; height: 14px; }
+
+.detail-company-name {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  margin-bottom: 4px;
+}
+.detail-domain { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
+
+.detail-section { margin-bottom: 24px; }
+.detail-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+  margin-bottom: 10px;
+}
+.detail-info-grid { display: flex; flex-direction: column; gap: 8px; }
+.detail-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+.detail-info-row .label { color: var(--text-muted); }
+.detail-info-row .value { font-weight: 600; color: var(--text-primary); }
+
+.signal-list { display: flex; flex-direction: column; gap: 6px; }
+.signal-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface-warm);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+.signal-item .signal-icon { font-size: 14px; }
+.signal-item .signal-text { flex: 1; color: var(--text-secondary); }
+.signal-item .signal-time { color: var(--text-light); font-size: 11px; }
+
+/* ─── Contact Cards ─── */
+.contact-grid { display: flex; flex-direction: column; gap: 8px; }
+.contact-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+.contact-card:hover { border-color: var(--accent); background: var(--accent-lighter); }
+.contact-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.contact-info { flex: 1; min-width: 0; }
+.contact-name { font-weight: 600; font-size: 13px; color: var(--text-primary); }
+.contact-title { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.contact-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.contact-channel {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+}
+
+/* ─── Campaign Builder ─── */
+.builder-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--border-light);
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-light);
+}
+.step.active { color: var(--accent); }
+.step.completed { color: var(--success); }
+.step-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  border: 2px solid var(--border);
+  color: var(--text-light);
+}
+.step.active .step-number { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.step.completed .step-number { border-color: var(--success); color: #fff; background: var(--success); }
+.step-connector {
+  width: 40px;
+  height: 2px;
+  background: var(--border-light);
+  margin: 0 8px;
+}
+.step-connector.done { background: var(--success); }
+.builder-body { flex: 1; overflow-y: auto; padding: 28px 32px; }
+.builder-body h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px; }
+.builder-body .subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+
+.form-group { margin-bottom: 20px; }
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.form-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--surface);
+  transition: border-color var(--transition-fast);
+  outline: none;
+}
+.form-input:focus { border-color: var(--accent); }
+.form-input::placeholder { color: var(--text-light); }
+select.form-input { cursor: pointer; }
+textarea.form-input { resize: vertical; min-height: 80px; }
+
+.persona-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.persona-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.persona-tag:hover { border-color: var(--accent); color: var(--accent); }
+.persona-tag.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.builder-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 32px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* ─── Campaign Timeline ─── */
+.timeline { position: relative; padding-left: 28px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border-light);
+}
+.timeline-item {
+  position: relative;
+  padding-bottom: 24px;
+}
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-node {
+  position: absolute;
+  left: -28px;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.timeline-node.sent { border-color: var(--accent); background: var(--accent); }
+.timeline-node.sent svg { color: #fff; }
+.timeline-node.replied { border-color: var(--success); background: var(--success); }
+.timeline-node.replied svg { color: #fff; }
+.timeline-node.scheduled { border-color: var(--text-light); }
+.timeline-node svg { width: 10px; height: 10px; }
+.timeline-content {
+  padding: 10px 14px;
+  background: var(--surface-warm);
+  border-radius: var(--radius-md);
+}
+.timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.timeline-header .name { font-weight: 600; font-size: 13px; }
+.timeline-header .time { font-size: 11px; color: var(--text-light); }
+.timeline-body { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.timeline-meta {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-light);
+}
+.timeline-meta span { display: flex; align-items: center; gap: 4px; }
+
+/* ─── Modal ─── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-med);
+}
+.modal-overlay.open { opacity: 1; visibility: visible; }
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  width: 480px;
+  max-width: 90vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-modal);
+  transform: translateY(8px);
+  transition: transform var(--transition-med);
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-light);
+}
+.modal-header h3 { font-size: 16px; font-weight: 700; }
+.modal-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+.modal-close:hover { background: var(--surface-warm); color: var(--text-primary); }
+.modal-body { padding: 20px 24px; }
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* ─── Import Preview ─── */
+.import-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.import-zone:hover { border-color: var(--accent); background: var(--accent-lighter); }
+.import-zone svg { width: 32px; height: 32px; color: var(--text-light); margin-bottom: 8px; }
+.import-zone p { font-size: 13px; color: var(--text-muted); }
+.import-zone .hint { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+
+/* ─── Loading State ─── */
+.loading-bar {
+  height: 3px;
+  background: var(--border-light);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+.loading-bar-fill {
+  height: 100%;
+  width: 30%;
+  background: var(--accent);
+  border-radius: 2px;
+  animation: loading 1.5s ease-in-out infinite;
+}
+@keyframes loading {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+/* ─── Empty State ─── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 32px;
+  text-align: center;
+}
+.empty-state svg { width: 48px; height: 48px; color: var(--text-light); margin-bottom: 16px; }
+.empty-state h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.empty-state p { font-size: 13px; color: var(--text-muted); max-width: 320px; margin-bottom: 16px; }
+
+/* ─── Toast ─── */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast {
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-md);
+  animation: toastIn 0.3s ease;
+}
+.toast-success { background: var(--success); color: #fff; }
+.toast-info { background: var(--accent); color: #fff; }
+@keyframes toastIn {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ─── Persona Column in Detail ─── */
+.persona-thread {
+  background: var(--surface-warm);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.persona-thread-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.persona-thread-name { font-weight: 600; font-size: 14px; }
+.persona-thread-role { font-size: 12px; color: var(--text-muted); }
+.channel-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .sidebar { width: 60px; min-width: 60px; }
+  .sidebar-item span, .sidebar-item .count, .sidebar-section, .sidebar-logo span, .sidebar-logo .badge { display: none; }
+  .sidebar-logo { justify-content: center; padding: 4px 0 20px; }
+  .detail-left { width: 260px; min-width: 260px; }
+  .stats-bar { flex-wrap: wrap; }
+  .stat-card { min-width: calc(50% - 8px); }
+}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+<div class="app" id="app"></div>
+<div class="toast-container" id="toasts"></div>
+
+<script>
+// ─── Mock Data ───
+const ACCOUNTS = [
+  { id: 1, name: 'Stripe', domain: 'stripe.com', industry: 'Fintech', employees: '8,000+', hq: 'San Francisco, CA', signal: 92, signalLevel: 'hot', status: 'engaged', contacts: 6, threaded: 4, meetings: 2, campaign: 'Enterprise Fintech Q1',
+    signals: [
+      { icon: '🔥', text: 'VP Sales visited pricing page 3x this week', time: '2h ago' },
+      { icon: '📋', text: 'Job posting: Head of Revenue Operations', time: '1d ago' },
+      { icon: '💰', text: 'Series I funding announced ($6.5B)', time: '3d ago' },
+      { icon: '🔗', text: 'CRO engaged with LinkedIn post', time: '5d ago' },
+    ],
+    people: [
+      { name: 'Sarah Chen', title: 'VP of Sales', initials: 'SC', status: 'Replied', channel: 'Email', statusClass: 'badge-engaged' },
+      { name: 'Marcus Webb', title: 'Head of Revenue Ops', initials: 'MW', status: 'Opened 3x', channel: 'Email', statusClass: 'badge-prospecting' },
+      { name: 'Diana Rodriguez', title: 'CRO', initials: 'DR', status: 'Connected', channel: 'LinkedIn', statusClass: 'badge-engaged' },
+      { name: 'James Liu', title: 'SDR Manager', initials: 'JL', status: 'Sequenced', channel: 'Email + LI', statusClass: 'badge-prospecting' },
+      { name: 'Priya Patel', title: 'VP Marketing', initials: 'PP', status: 'Researching', channel: '—', statusClass: 'badge-new' },
+      { name: 'Tom Nguyen', title: 'Dir. Sales Enablement', initials: 'TN', status: 'Queued', channel: 'Email', statusClass: 'badge-new' },
+    ]
+  },
+  { id: 2, name: 'Databricks', domain: 'databricks.com', industry: 'Data & AI', employees: '7,000+', hq: 'San Francisco, CA', signal: 85, signalLevel: 'hot', status: 'engaged', contacts: 5, threaded: 3, meetings: 1, campaign: 'Data Platform ABM' },
+  { id: 3, name: 'Figma', domain: 'figma.com', industry: 'Design Tools', employees: '1,500+', hq: 'San Francisco, CA', signal: 78, signalLevel: 'warm', status: 'prospecting', contacts: 4, threaded: 2, meetings: 0, campaign: 'Product-Led Growth' },
+  { id: 4, name: 'Notion', domain: 'notion.so', industry: 'Productivity', employees: '1,000+', hq: 'San Francisco, CA', signal: 74, signalLevel: 'warm', status: 'prospecting', contacts: 3, threaded: 0, meetings: 0, campaign: '—' },
+  { id: 5, name: 'Plaid', domain: 'plaid.com', industry: 'Fintech', employees: '1,800+', hq: 'San Francisco, CA', signal: 71, signalLevel: 'warm', status: 'new', contacts: 4, threaded: 0, meetings: 0, campaign: '—' },
+  { id: 6, name: 'Airtable', domain: 'airtable.com', industry: 'Productivity', employees: '1,200+', hq: 'San Francisco, CA', signal: 65, signalLevel: 'warm', status: 'new', contacts: 2, threaded: 0, meetings: 0, campaign: '—' },
+  { id: 7, name: 'Ramp', domain: 'ramp.com', industry: 'Fintech', employees: '1,000+', hq: 'New York, NY', signal: 58, signalLevel: 'cold', status: 'new', contacts: 3, threaded: 0, meetings: 0, campaign: '—' },
+  { id: 8, name: 'Vercel', domain: 'vercel.com', industry: 'Developer Tools', employees: '500+', hq: 'San Francisco, CA', signal: 45, signalLevel: 'cold', status: 'paused', contacts: 2, threaded: 0, meetings: 0, campaign: '—' },
+];
+
+const CAMPAIGN_TIMELINE = [
+  { persona: 'Sarah Chen', role: 'VP of Sales', action: 'Email opened', detail: 'Personalized intro referencing Stripe\'s expansion into APAC markets and how 11x helped similar fintech teams scale outbound.', time: 'Today, 9:14 AM', status: 'sent', channel: 'Email', opens: 3, clicks: 1 },
+  { persona: 'Sarah Chen', role: 'VP of Sales', action: 'Reply received', detail: '"Thanks for reaching out — this is timely. Can you share a case study? We\'re evaluating tools for our APAC SDR team."', time: 'Today, 11:42 AM', status: 'replied', channel: 'Email' },
+  { persona: 'Diana Rodriguez', role: 'CRO', action: 'LinkedIn connection accepted', detail: 'Connection request with note about 11x\'s work with high-growth fintech revenue teams.', time: 'Yesterday, 3:20 PM', status: 'sent', channel: 'LinkedIn' },
+  { persona: 'Marcus Webb', role: 'Head of Revenue Ops', action: 'Email sequence started', detail: 'RevOps-specific angle: how Alice integrates with Salesforce to auto-prospect within target accounts and reduce manual list building.', time: 'Yesterday, 10:00 AM', status: 'sent', channel: 'Email', opens: 3, clicks: 0 },
+  { persona: 'James Liu', role: 'SDR Manager', action: 'LinkedIn message sent', detail: 'Peer-to-peer outreach about how SDR teams use Alice to run account-based plays without increasing headcount.', time: 'Jan 28, 2:15 PM', status: 'sent', channel: 'LinkedIn' },
+  { persona: 'Diana Rodriguez', role: 'CRO', action: 'Email scheduled', detail: 'Executive briefing on how Alice drives pipeline for CROs at $1B+ companies. Timed 2 days after LinkedIn connection.', time: 'Tomorrow, 8:00 AM', status: 'scheduled', channel: 'Email' },
+  { persona: 'Priya Patel', role: 'VP Marketing', action: 'Research in progress', detail: 'Alice is researching Priya\'s recent conference talks and marketing initiatives to craft a demand gen-specific angle.', time: 'Pending', status: 'scheduled', channel: '—' },
+];
+
+// ─── State ───
+let currentView = 'accounts';
+let selectedAccount = null;
+let searchQuery = '';
+let filterSignal = 'all';
+let builderStep = 0;
+let importModalOpen = false;
+let campaignForm = { name: '', source: 'crm', personas: ['VP Sales', 'CRO'] };
+
+// ─── SVG Icons ───
+const icons = {
+  accounts: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  campaigns: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+  leads: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  signals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>',
+  playbooks: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
+};
+
+// ─── Render ───
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = renderSidebar() + '<div class="main"><div class="content-surface">' + renderContent() + '</div></div>';
+  bindEvents();
+}
+
+function renderSidebar() {
+  const navItems = [
+    { id: 'accounts', icon: icons.accounts, label: 'Accounts', count: ACCOUNTS.length },
+    { id: 'campaigns', icon: icons.campaigns, label: 'Campaigns', count: '3' },
+    { id: 'leads', icon: icons.leads, label: 'Contacts', count: '48' },
+    { id: 'signals', icon: icons.signals, label: 'Signals', count: '' },
+    { id: 'playbooks', icon: icons.playbooks, label: 'Playbooks', count: '' },
+  ];
+  return `<nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">A</div>
+      <span>Alice</span>
+      <span class="badge">ABM</span>
+    </div>
+    <div class="sidebar-section">Workflows</div>
+    ${navItems.map(n => `
+      <div class="sidebar-item ${currentView === n.id || (currentView === 'account-detail' && n.id === 'accounts') || (currentView === 'campaign-builder' && n.id === 'campaigns') || (currentView === 'campaign-detail' && n.id === 'campaigns') ? 'active' : ''}" data-nav="${n.id}">
+        ${n.icon}<span>${n.label}</span>${n.count ? `<span class="count">${n.count}</span>` : ''}
+      </div>
+    `).join('')}
+    <div class="sidebar-bottom">
+      <div class="sidebar-section">System</div>
+      <div class="sidebar-item" data-nav="settings">${icons.settings}<span>Settings</span></div>
+    </div>
+  </nav>`;
+}
+
+function renderContent() {
+  switch(currentView) {
+    case 'accounts': return renderAccountsDashboard();
+    case 'account-detail': return renderAccountDetail();
+    case 'campaign-builder': return renderCampaignBuilder();
+    case 'campaign-detail': return renderCampaignDetail();
+    default: return renderAccountsDashboard();
+  }
+}
+
+function renderAccountsDashboard() {
+  const filtered = ACCOUNTS.filter(a => {
+    const matchesSearch = a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.domain.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterSignal === 'all' || a.signalLevel === filterSignal;
+    return matchesSearch && matchesFilter;
+  });
+
+  return `
+    <div class="page-header">
+      <div>
+        <h1>Target Accounts</h1>
+        <p>${ACCOUNTS.length} accounts across ${new Set(ACCOUNTS.map(a=>a.industry)).size} industries</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-secondary" data-action="import">${icons.upload} Import Accounts</button>
+        <button class="btn btn-primary" data-action="new-campaign">${icons.plus} New ABM Campaign</button>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-card"><div class="stat-label">Total Accounts</div><div class="stat-value">${ACCOUNTS.length}</div><div class="stat-change up">+12 this week</div></div>
+      <div class="stat-card"><div class="stat-label">Contacts Discovered</div><div class="stat-value">48</div><div class="stat-change up">+8 auto-prospected</div></div>
+      <div class="stat-card"><div class="stat-label">Active Threads</div><div class="stat-value">14</div><div class="stat-change up">across 4 accounts</div></div>
+      <div class="stat-card"><div class="stat-label">Meetings Booked</div><div class="stat-value">3</div><div class="stat-change up">+2 this week</div></div>
+    </div>
+    <div class="toolbar">
+      <div class="search-input">
+        ${icons.search}
+        <input type="text" placeholder="Search accounts..." value="${searchQuery}" data-action="search">
+      </div>
+      <button class="filter-btn ${filterSignal === 'all' ? 'active' : ''}" data-filter="all">All</button>
+      <button class="filter-btn ${filterSignal === 'hot' ? 'active' : ''}" data-filter="hot"><span class="signal-dot" style="background:var(--signal-hot);width:6px;height:6px;border-radius:50%;display:inline-block"></span> Hot</button>
+      <button class="filter-btn ${filterSignal === 'warm' ? 'active' : ''}" data-filter="warm"><span class="signal-dot" style="background:var(--signal-warm);width:6px;height:6px;border-radius:50%;display:inline-block"></span> Warm</button>
+      <button class="filter-btn ${filterSignal === 'cold' ? 'active' : ''}" data-filter="cold"><span class="signal-dot" style="background:var(--signal-cold);width:6px;height:6px;border-radius:50%;display:inline-block"></span> Cold</button>
+    </div>
+    <div class="table-wrap">
+      ${filtered.length === 0 ? `
+        <div class="empty-state">
+          ${icons.search}
+          <h3>No accounts found</h3>
+          <p>Try adjusting your search or filters, or import new accounts.</p>
+          <button class="btn btn-primary" data-action="import">${icons.plus} Import Accounts</button>
+        </div>
+      ` : `
+      <table>
+        <thead><tr>
+          <th>Account</th>
+          <th>Signal Score</th>
+          <th>Status</th>
+          <th>Contacts</th>
+          <th>Threads Active</th>
+          <th>Meetings</th>
+          <th>Campaign</th>
+        </tr></thead>
+        <tbody>
+          ${filtered.map(a => `
+            <tr data-account="${a.id}">
+              <td><div class="account-cell"><span class="account-name">${a.name}</span><span class="account-domain">${a.domain} · ${a.industry}</span></div></td>
+              <td><span class="signal-score signal-${a.signalLevel}"><span class="signal-dot"></span>${a.signal}</span></td>
+              <td><span class="badge-sm badge-${a.status}">${a.status.charAt(0).toUpperCase() + a.status.slice(1)}</span></td>
+              <td>${a.contacts}</td>
+              <td>${a.threaded > 0 ? `<div class="progress-mini"><div class="progress-track"><div class="progress-fill" style="width:${(a.threaded/a.contacts)*100}%"></div></div><span class="progress-label">${a.threaded}/${a.contacts}</span></div>` : '<span style="color:var(--text-light)">—</span>'}</td>
+              <td>${a.meetings > 0 ? `<span style="font-weight:700;color:var(--success)">${a.meetings}</span>` : '<span style="color:var(--text-light)">0</span>'}</td>
+              <td>${a.campaign !== '—' ? `<span style="color:var(--text-secondary);font-size:12px">${a.campaign}</span>` : '<span style="color:var(--text-light)">—</span>'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`}
+    </div>
+    ${renderImportModal()}
+  `;
+}
+
+function renderAccountDetail() {
+  const a = selectedAccount || ACCOUNTS[0];
+  const people = a.people || ACCOUNTS[0].people;
+  const signals = a.signals || ACCOUNTS[0].signals;
+
+  return `
+    <div class="detail-layout">
+      <div class="detail-left">
+        <div class="detail-back" data-action="back-to-accounts">${icons.back} All Accounts</div>
+        <div class="detail-company-name">${a.name}</div>
+        <div class="detail-domain">${a.domain}</div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">Account Info</div>
+          <div class="detail-info-grid">
+            <div class="detail-info-row"><span class="label">Industry</span><span class="value">${a.industry}</span></div>
+            <div class="detail-info-row"><span class="label">Employees</span><span class="value">${a.employees}</span></div>
+            <div class="detail-info-row"><span class="label">HQ</span><span class="value">${a.hq}</span></div>
+            <div class="detail-info-row"><span class="label">Signal Score</span><span class="value"><span class="signal-score signal-${a.signalLevel}"><span class="signal-dot"></span>${a.signal}</span></span></div>
+            <div class="detail-info-row"><span class="label">Status</span><span class="value"><span class="badge-sm badge-${a.status}">${a.status.charAt(0).toUpperCase() + a.status.slice(1)}</span></span></div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">Recent Signals</div>
+          <div class="signal-list">
+            ${signals.map(s => `
+              <div class="signal-item">
+                <span class="signal-icon">${s.icon}</span>
+                <span class="signal-text">${s.text}</span>
+                <span class="signal-time">${s.time}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <button class="btn btn-primary" style="width:100%" data-action="launch-campaign">${icons.campaigns} Launch ABM Campaign</button>
+        </div>
+      </div>
+
+      <div class="detail-right">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div>
+            <h2 style="font-size:17px;font-weight:700;letter-spacing:-0.3px">Contacts at ${a.name}</h2>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:2px">${people.length} discovered · ${a.threaded} active threads</p>
+          </div>
+          <button class="btn btn-secondary" style="font-size:12px">${icons.plus} Add Contact</button>
+        </div>
+
+        <div class="tabs" style="padding:0;margin-bottom:16px">
+          <div class="tab active">All Contacts</div>
+          <div class="tab">Active Threads</div>
+          <div class="tab">Timeline</div>
+        </div>
+
+        <div class="contact-grid">
+          ${people.map(p => `
+            <div class="contact-card" data-action="view-campaign">
+              <div class="contact-avatar">${p.initials}</div>
+              <div class="contact-info">
+                <div class="contact-name">${p.name}</div>
+                <div class="contact-title">${p.title}</div>
+              </div>
+              <div class="contact-status">
+                <span class="badge-sm ${p.statusClass}">${p.status}</span>
+                <span class="contact-channel">${p.channel}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderCampaignBuilder() {
+  const steps = ['Select Accounts', 'Target Personas', 'Configure Messaging', 'Review & Launch'];
+  const allPersonas = ['VP Sales', 'CRO', 'Head of RevOps', 'SDR Manager', 'VP Marketing', 'Dir. Sales Enablement'];
+
+  return `
+    <div class="page-header">
+      <div>
+        <h1>New ABM Campaign</h1>
+        <p>Create coordinated multi-threaded outreach across target accounts</p>
+      </div>
+    </div>
+    <div class="builder-steps">
+      ${steps.map((s, i) => `
+        <div class="step ${i < builderStep ? 'completed' : ''} ${i === builderStep ? 'active' : ''}">
+          <div class="step-number">${i < builderStep ? '✓' : i + 1}</div>
+          <span>${s}</span>
+        </div>
+        ${i < steps.length - 1 ? `<div class="step-connector ${i < builderStep ? 'done' : ''}"></div>` : ''}
+      `).join('')}
+    </div>
+    <div class="builder-body">
+      ${builderStep === 0 ? `
+        <h2>Select Target Accounts</h2>
+        <p class="subtitle">Choose which accounts to include in this ABM campaign.</p>
+        <div class="form-group">
+          <label class="form-label">Campaign Name</label>
+          <input class="form-input" type="text" placeholder="e.g., Enterprise Fintech Q1" value="${campaignForm.name}" data-field="name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Source</label>
+          <select class="form-input" data-field="source">
+            <option value="crm" ${campaignForm.source === 'crm' ? 'selected' : ''}>Import from Salesforce</option>
+            <option value="csv" ${campaignForm.source === 'csv' ? 'selected' : ''}>Upload CSV</option>
+            <option value="manual" ${campaignForm.source === 'manual' ? 'selected' : ''}>Select from existing accounts</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Selected Accounts</label>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            ${ACCOUNTS.slice(0, 4).map(a => `
+              <span class="persona-tag selected">${a.name} <span style="opacity:0.6">· ${a.signal}</span></span>
+            `).join('')}
+            <span class="persona-tag">+ Add more</span>
+          </div>
+        </div>
+      ` : builderStep === 1 ? `
+        <h2>Target Personas</h2>
+        <p class="subtitle">Select which roles to target within each account. Alice will auto-prospect matching contacts.</p>
+        <div class="form-group">
+          <label class="form-label">Personas to Target</label>
+          <div class="persona-tags">
+            ${allPersonas.map(p => `
+              <span class="persona-tag ${campaignForm.personas.includes(p) ? 'selected' : ''}" data-persona="${p}">${p}</span>
+            `).join('')}
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:24px">
+          <label class="form-label">Threading Strategy</label>
+          <select class="form-input">
+            <option selected>Staggered — Space outreach 2-3 days between personas</option>
+            <option>Simultaneous — Reach all personas at once</option>
+            <option>Sequential — Start with champion, then expand</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Channels</label>
+          <div class="persona-tags">
+            <span class="persona-tag selected">Email</span>
+            <span class="persona-tag selected">LinkedIn</span>
+            <span class="persona-tag">Phone</span>
+          </div>
+        </div>
+      ` : builderStep === 2 ? `
+        <h2>Configure Messaging</h2>
+        <p class="subtitle">Alice will generate persona-specific messaging. Customize the angle for each role.</p>
+        ${campaignForm.personas.map(p => `
+          <div class="persona-thread">
+            <div class="persona-thread-header">
+              <div class="contact-avatar" style="width:32px;height:32px;font-size:11px">${p.split(' ').map(w=>w[0]).join('')}</div>
+              <div>
+                <div class="persona-thread-name">${p}</div>
+                <div class="persona-thread-role">Auto-generated messaging</div>
+              </div>
+              <span class="channel-badge">Email + LinkedIn</span>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Messaging Angle</label>
+              <textarea class="form-input" placeholder="Alice will personalize based on account research. Add specific angles here...">${p === 'VP Sales' ? 'Focus on pipeline generation and SDR team augmentation. Reference their current tech stack and team size.' : p === 'CRO' ? 'Executive-level ROI angle. Reference industry benchmarks and competitor adoption.' : ''}</textarea>
+            </div>
+          </div>
+        `).join('')}
+      ` : `
+        <h2>Review & Launch</h2>
+        <p class="subtitle">Confirm your campaign settings before Alice begins outreach.</p>
+        <div style="background:var(--surface-warm);border-radius:var(--radius-md);padding:20px;margin-bottom:16px">
+          <div class="detail-info-grid">
+            <div class="detail-info-row"><span class="label">Campaign</span><span class="value">${campaignForm.name || 'Enterprise Fintech Q1'}</span></div>
+            <div class="detail-info-row"><span class="label">Accounts</span><span class="value">4 accounts selected</span></div>
+            <div class="detail-info-row"><span class="label">Personas</span><span class="value">${campaignForm.personas.join(', ')}</span></div>
+            <div class="detail-info-row"><span class="label">Estimated Contacts</span><span class="value">~16-24 contacts</span></div>
+            <div class="detail-info-row"><span class="label">Channels</span><span class="value">Email + LinkedIn</span></div>
+            <div class="detail-info-row"><span class="label">Threading</span><span class="value">Staggered (2-3 day spacing)</span></div>
+          </div>
+        </div>
+        <div style="background:var(--success-bg);border-radius:var(--radius-md);padding:16px;display:flex;align-items:center;gap:10px">
+          <span style="color:var(--success);font-size:18px">✓</span>
+          <div>
+            <div style="font-weight:600;font-size:13px;color:var(--success)">Ready to launch</div>
+            <div style="font-size:12px;color:var(--text-muted)">Alice will auto-prospect contacts, research accounts, and begin coordinated outreach.</div>
+          </div>
+        </div>
+      `}
+    </div>
+    <div class="builder-footer">
+      <button class="btn btn-ghost" data-action="${builderStep === 0 ? 'back-to-accounts' : 'builder-prev'}">
+        ${builderStep === 0 ? 'Cancel' : '← Back'}
+      </button>
+      <button class="btn btn-primary" data-action="${builderStep === 3 ? 'launch-campaign-confirm' : 'builder-next'}">
+        ${builderStep === 3 ? '🚀 Launch Campaign' : 'Continue →'}
+      </button>
+    </div>
+  `;
+}
+
+function renderCampaignDetail() {
+  const a = selectedAccount || ACCOUNTS[0];
+  return `
+    <div class="page-header">
+      <div>
+        <div class="detail-back" data-action="back-to-accounts">${icons.back} All Accounts</div>
+        <h1 style="margin-top:8px">Campaign: Enterprise Fintech Q1</h1>
+        <p>Multi-threaded outreach at ${a.name} · 4 personas · Email + LinkedIn</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-secondary">Pause Campaign</button>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-card"><div class="stat-label">Personas Targeted</div><div class="stat-value">4</div></div>
+      <div class="stat-card"><div class="stat-label">Messages Sent</div><div class="stat-value">9</div><div class="stat-change up">across 2 channels</div></div>
+      <div class="stat-card"><div class="stat-label">Replies</div><div class="stat-value">1</div><div class="stat-change up">VP Sales replied</div></div>
+      <div class="stat-card"><div class="stat-label">Meetings</div><div class="stat-value">0</div><div class="stat-change" style="color:var(--text-light)">in progress</div></div>
+    </div>
+    <div class="tabs">
+      <div class="tab active">Timeline</div>
+      <div class="tab">By Persona</div>
+      <div class="tab">Analytics</div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:24px 32px">
+      <div class="timeline">
+        ${CAMPAIGN_TIMELINE.map(t => `
+          <div class="timeline-item">
+            <div class="timeline-node ${t.status}">
+              ${t.status === 'sent' ? icons.mail : t.status === 'replied' ? icons.check : icons.clock}
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <span class="name">${t.persona} · ${t.role}</span>
+                <span class="time">${t.time}</span>
+              </div>
+              <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px">${t.action}</div>
+              <div class="timeline-body">${t.detail}</div>
+              <div class="timeline-meta">
+                <span><span class="channel-badge" style="margin-left:0">${t.channel}</span></span>
+                ${t.opens ? `<span>Opens: ${t.opens}</span>` : ''}
+                ${t.clicks ? `<span>Clicks: ${t.clicks}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderImportModal() {
+  return `
+    <div class="modal-overlay ${importModalOpen ? 'open' : ''}" data-action="close-modal">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Import Accounts</h3>
+          <button class="modal-close" data-action="close-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="tabs" style="padding:0;margin-bottom:16px">
+            <div class="tab active">CRM Sync</div>
+            <div class="tab">CSV Upload</div>
+            <div class="tab">API</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">CRM Connection</label>
+            <select class="form-input">
+              <option>Salesforce — Connected</option>
+              <option>HubSpot</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Import Filter</label>
+            <select class="form-input">
+              <option>Target Account List — Q1 2026</option>
+              <option>Enterprise Accounts (500+ employees)</option>
+              <option>All Accounts</option>
+            </select>
+          </div>
+          <div style="background:var(--surface-warm);border-radius:var(--radius-md);padding:16px;font-size:13px;color:var(--text-secondary)">
+            <strong>Preview:</strong> 24 accounts found matching criteria. Alice will auto-prospect contacts within each account after import.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-action="close-modal">Cancel</button>
+          <button class="btn btn-primary" data-action="confirm-import">${icons.upload} Import 24 Accounts</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Event Binding ───
+function bindEvents() {
+  // Navigation
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.onclick = () => { currentView = el.dataset.nav; selectedAccount = null; render(); };
+  });
+
+  // Account row click
+  document.querySelectorAll('[data-account]').forEach(el => {
+    el.onclick = () => {
+      selectedAccount = ACCOUNTS.find(a => a.id === parseInt(el.dataset.account));
+      currentView = 'account-detail';
+      render();
+    };
+  });
+
+  // Actions
+  document.querySelectorAll('[data-action]').forEach(el => {
+    el.onclick = (e) => {
+      e.stopPropagation();
+      switch(el.dataset.action) {
+        case 'back-to-accounts':
+          currentView = 'accounts';
+          selectedAccount = null;
+          builderStep = 0;
+          render();
+          break;
+        case 'import':
+          importModalOpen = true;
+          render();
+          break;
+        case 'close-modal':
+          importModalOpen = false;
+          render();
+          break;
+        case 'confirm-import':
+          importModalOpen = false;
+          showToast('24 accounts imported from Salesforce', 'success');
+          render();
+          break;
+        case 'new-campaign':
+        case 'launch-campaign':
+          currentView = 'campaign-builder';
+          builderStep = 0;
+          render();
+          break;
+        case 'builder-next':
+          if (builderStep < 3) { builderStep++; render(); }
+          break;
+        case 'builder-prev':
+          if (builderStep > 0) { builderStep--; render(); }
+          break;
+        case 'launch-campaign-confirm':
+          showToast('Campaign launched! Alice is prospecting contacts...', 'success');
+          currentView = 'campaign-detail';
+          render();
+          break;
+        case 'view-campaign':
+          currentView = 'campaign-detail';
+          render();
+          break;
+      }
+    };
+  });
+
+  // Search
+  const searchInput = document.querySelector('[data-action="search"]');
+  if (searchInput) {
+    searchInput.oninput = (e) => { searchQuery = e.target.value; render(); };
+  }
+
+  // Filters
+  document.querySelectorAll('[data-filter]').forEach(el => {
+    el.onclick = () => { filterSignal = el.dataset.filter; render(); };
+  });
+
+  // Persona tags
+  document.querySelectorAll('[data-persona]').forEach(el => {
+    el.onclick = () => {
+      const p = el.dataset.persona;
+      if (campaignForm.personas.includes(p)) {
+        campaignForm.personas = campaignForm.personas.filter(x => x !== p);
+      } else {
+        campaignForm.personas.push(p);
+      }
+      render();
+    };
+  });
+
+  // Form fields
+  document.querySelectorAll('[data-field]').forEach(el => {
+    el.oninput = (e) => { campaignForm[el.dataset.field] = e.target.value; };
+  });
+}
+
+function showToast(message, type) {
+  const container = document.getElementById('toasts');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `${type === 'success' ? '✓' : 'ℹ'} ${message}`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// ─── Init ───
+render();
+</script>
+</body>
+</html>
