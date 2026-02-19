@@ -1984,10 +1984,10 @@ function renderCampaignBuilder() {
         </div>
 
         ${campaignForm.source === 'csv' && !csvUploaded ? `
-          <div style="border:1.5px dashed var(--border);border-radius:var(--radius-md);padding:28px 24px;text-align:center;background:var(--surface-warm);margin-bottom:16px">
+          <div data-action="open-csv-modal" style="border:1.5px dashed var(--border);border-radius:var(--radius-md);padding:28px 24px;text-align:center;background:var(--surface-warm);margin-bottom:16px;cursor:pointer" onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(46,111,107,0.04)'" onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface-warm)'">
             <div style="font-size:24px;margin-bottom:8px">📄</div>
             <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Drop your CSV here</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">or <span data-action="open-csv-modal" style="color:var(--accent);cursor:pointer;font-weight:600">browse files</span></div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">or <span style="color:var(--accent);font-weight:600">browse files</span></div>
             <div style="font-size:11px;color:var(--text-light)">Required columns: Company Name, Domain · Optional: Industry, Revenue</div>
           </div>
         ` : (() => {
