@@ -1208,9 +1208,13 @@ function renderSidebar() {
   const aliceMark = `<svg width="22" height="22" viewBox="0 0 32 32" fill="none">
     <path d="M16 2 C15 8 8 15 2 16 C8 17 15 24 16 30 C17 24 24 17 30 16 C24 15 17 8 16 2 Z" fill="#1E2321"/>
   </svg>`;
-  // 11x mark: 4-blade rotating windmill / butterfly
+  // 11x mark: 6-arm asterisk (3 rectangles at 0°/60°/120°)
   const logoMark = `<svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-    <path d="M16 16 C19 9 25 7 27 12 C29 17 23 16 16 16 C23 19 25 25 20 27 C15 29 16 23 16 16 C13 23 7 25 5 20 C3 15 9 16 16 16 C9 13 7 7 12 5 C17 3 16 9 16 16 Z" fill="rgba(30,35,33,0.4)"/>
+    <g transform="translate(16,16)" fill="rgba(30,35,33,0.4)">
+      <rect x="-2.5" y="-13" width="5" height="26" rx="2.5"/>
+      <rect x="-2.5" y="-13" width="5" height="26" rx="2.5" transform="rotate(60)"/>
+      <rect x="-2.5" y="-13" width="5" height="26" rx="2.5" transform="rotate(120)"/>
+    </g>
   </svg>`;
 
   if (!sidebarCollapsed) {
@@ -1258,7 +1262,7 @@ function renderSidebar() {
 }
 
 function renderTopBar() {
-  const markSvg = `<svg width="18" height="18" viewBox="0 0 32 32" fill="none"><path d="M16 16 C19 9 25 7 27 12 C29 17 23 16 16 16 C23 19 25 25 20 27 C15 29 16 23 16 16 C13 23 7 25 5 20 C3 15 9 16 16 16 C9 13 7 7 12 5 C17 3 16 9 16 16 Z" fill="var(--text-primary)"/></svg>`;
+  const markSvg = `<svg width="18" height="18" viewBox="0 0 32 32" fill="none"><g transform="translate(16,16)" fill="var(--text-primary)"><rect x="-2.5" y="-13" width="5" height="26" rx="2.5"/><rect x="-2.5" y="-13" width="5" height="26" rx="2.5" transform="rotate(60)"/><rect x="-2.5" y="-13" width="5" height="26" rx="2.5" transform="rotate(120)"/></g></svg>`;
   const a = selectedAccount;
   let crumbs = '';
   switch(currentView) {
