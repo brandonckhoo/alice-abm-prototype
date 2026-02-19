@@ -1145,7 +1145,7 @@ let sidebarCollapsed = false;
 let builderStep = 0;
 let importModalOpen = false;
 let importModalTab = 'crm';
-let campaignForm = { name: '', source: 'crm', personas: ['VP Sales', 'CRO'], playbookName: null };
+let campaignForm = { name: '', source: 'crm', personas: ['VP Sales', 'CRO'], playbookName: null, goal: 'meeting', enrichmentSources: ['linkedin', 'website', 'apollo'] };
 let contactsFilter = 'all';
 let signalsPriorityFilter = 'all';
 let signalsTypeFilter = 'all';
@@ -1837,6 +1837,22 @@ function renderCampaignBuilder() {
           <input class="form-input" type="text" placeholder="e.g., Enterprise Fintech Q1" value="${campaignForm.name}" data-field="name">
         </div>
         <div class="form-group">
+          <label class="form-label">Campaign Goal <span style="font-weight:400;color:var(--text-muted)">— Alice will optimize messaging and timing toward this outcome</span></label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${[
+              { id: 'meeting', label: '📅 Book a meeting', desc: 'Get on the calendar' },
+              { id: 'demo', label: '🖥️ Get a demo', desc: 'Product walkthrough' },
+              { id: 'event', label: '🎟️ Event invite', desc: 'Conference / webinar' },
+              { id: 'pipeline', label: '📈 Pipeline generation', desc: 'Broad awareness first' }
+            ].map(g => `
+              <div data-goal="${g.id}" style="display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:var(--radius-md);border:1.5px solid ${campaignForm.goal === g.id ? 'var(--accent)' : 'var(--border)'};background:${campaignForm.goal === g.id ? 'rgba(46,111,107,0.06)' : 'var(--surface)'};cursor:pointer;transition:all 150ms ease;min-width:140px">
+                <span style="font-size:13px;font-weight:600;color:${campaignForm.goal === g.id ? 'var(--accent)' : 'var(--text-primary)'}">${g.label}</span>
+                <span style="font-size:11px;color:var(--text-muted)">${g.desc}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="form-group">
           <label class="form-label">Account Source</label>
           <select class="form-input" data-field="source">
             <option value="crm" ${campaignForm.source === 'crm' ? 'selected' : ''}>Import from Salesforce</option>
@@ -1892,6 +1908,34 @@ function renderCampaignBuilder() {
             <span class="persona-tag ${selectedChannels.includes('Email') ? 'selected' : ''}" data-channel="Email">Email</span>
             <span class="persona-tag ${selectedChannels.includes('LinkedIn') ? 'selected' : ''}" data-channel="LinkedIn">LinkedIn</span>
             <span class="persona-tag ${selectedChannels.includes('Phone') ? 'selected' : ''}" data-channel="Phone">Phone</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Enrichment Sources <span style="font-weight:400;color:var(--text-muted)">— Alice scrapes these to find and research contacts</span></label>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            ${[
+              { id: 'linkedin',  label: 'LinkedIn',       icon: '💼', note: 'Profiles + activity',     builtin: true  },
+              { id: 'website',   label: 'Company site',   icon: '🌐', note: 'News + hiring signals',   builtin: true  },
+              { id: 'apollo',    label: 'Apollo',         icon: '🚀', note: 'Contact database',        builtin: false },
+              { id: 'zoominfo',  label: 'ZoomInfo',       icon: '🔍', note: 'Enterprise contact data', builtin: false },
+              { id: 'clearbit',  label: 'Clearbit',       icon: '✨', note: 'Firmographic enrichment', builtin: false },
+              { id: 'g2',        label: 'G2 / Bombora',   icon: '📊', note: 'Intent signals',          builtin: false },
+            ].map(s => {
+              const on = campaignForm.enrichmentSources.includes(s.id);
+              return `<div data-enrich-toggle="${s.id}" style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--radius-md);border:1.5px solid ${on ? 'var(--accent)' : 'var(--border)'};background:${on ? 'rgba(46,111,107,0.05)' : 'var(--surface)'};cursor:pointer;transition:all 150ms ease">
+                <span style="font-size:18px;margin-top:1px">${s.icon}</span>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <span style="font-size:12px;font-weight:600;color:${on ? 'var(--accent)' : 'var(--text-primary)'}">${s.label}</span>
+                    ${s.builtin ? `<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-light);background:var(--border);padding:1px 5px;border-radius:4px">Built-in</span>` : ''}
+                  </div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:1px">${s.note}</div>
+                </div>
+                <div style="width:16px;height:16px;border-radius:50%;border:1.5px solid ${on ? 'var(--accent)' : 'var(--border-light)'};background:${on ? 'var(--accent)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">
+                  ${on ? `<svg width="8" height="6" viewBox="0 0 8 6"><path d="M1 3l2 2 4-4" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}
+                </div>
+              </div>`;
+            }).join('')}
           </div>
         </div>
       ` : builderStep === 2 ? `
@@ -1950,11 +1994,13 @@ function renderCampaignBuilder() {
         <div style="background:var(--surface-warm);border-radius:var(--radius-md);padding:20px;margin-bottom:16px">
           <div class="detail-info-grid">
             <div class="detail-info-row"><span class="label">Campaign</span><span class="value">${campaignForm.name || 'Enterprise Fintech Q1'}</span></div>
+            <div class="detail-info-row"><span class="label">Goal</span><span class="value">${{meeting:'Book a meeting',demo:'Get a demo',event:'Event invite',pipeline:'Pipeline generation'}[campaignForm.goal] || '—'}</span></div>
             <div class="detail-info-row"><span class="label">Accounts</span><span class="value">4 accounts selected</span></div>
             <div class="detail-info-row"><span class="label">Personas</span><span class="value">${campaignForm.personas.join(', ')}</span></div>
             <div class="detail-info-row"><span class="label">Estimated Contacts</span><span class="value">~16-24 contacts</span></div>
             <div class="detail-info-row"><span class="label">Channels</span><span class="value">Email + LinkedIn</span></div>
             <div class="detail-info-row"><span class="label">Threading</span><span class="value">Staggered (2-3 day spacing)</span></div>
+            <div class="detail-info-row"><span class="label">Enrichment</span><span class="value">${campaignForm.enrichmentSources.map(s => ({linkedin:'LinkedIn',website:'Company site',apollo:'Apollo',zoominfo:'ZoomInfo',clearbit:'Clearbit',g2:'G2/Bombora'})[s]).join(', ')}</span></div>
           </div>
         </div>
         <div style="background:var(--success-bg);border-radius:var(--radius-md);padding:16px;display:flex;align-items:center;gap:10px">
@@ -2269,6 +2315,24 @@ function bindEvents() {
         campaignForm.personas = campaignForm.personas.filter(x => x !== p);
       } else {
         campaignForm.personas.push(p);
+      }
+      render();
+    };
+  });
+
+  // Campaign goal selection
+  document.querySelectorAll('[data-goal]').forEach(el => {
+    el.onclick = () => { campaignForm.goal = el.dataset.goal; render(); };
+  });
+
+  // Enrichment source toggles
+  document.querySelectorAll('[data-enrich-toggle]').forEach(el => {
+    el.onclick = () => {
+      const src = el.dataset.enrichToggle;
+      if (campaignForm.enrichmentSources.includes(src)) {
+        campaignForm.enrichmentSources = campaignForm.enrichmentSources.filter(x => x !== src);
+      } else {
+        campaignForm.enrichmentSources.push(src);
       }
       render();
     };
