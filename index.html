@@ -1273,7 +1273,7 @@ const icons = {
 // ─── Render ───
 function render() {
   const app = document.getElementById('app');
-  app.innerHTML = renderSidebar() + '<div class="main"><div class="content-surface">' + renderTopBar() + renderContent() + '</div></div>';
+  app.innerHTML = renderSidebar() + '<div class="main"><div class="content-surface">' + renderTopBar() + renderContent() + '</div></div>' + renderImportModal();
   bindEvents();
 }
 
@@ -1763,7 +1763,6 @@ function renderAccountsDashboard() {
         </tbody>
       </table>`}
     </div>
-    ${renderImportModal()}
     ${renderEditCampaignPanel()}
   `;
 }
