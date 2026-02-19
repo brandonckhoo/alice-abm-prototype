@@ -893,6 +893,57 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 /* ─── KB Remove Button ─── */
 .kb-remove-btn:hover { background: var(--danger-bg); color: var(--danger); }
 
+/* ─── Playbooks ─── */
+.playbooks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 20px 32px 32px;
+  overflow-y: auto;
+}
+.playbook-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--surface);
+  transition: all var(--transition-med);
+  cursor: default;
+}
+.playbook-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(46,111,107,0.09); }
+.playbook-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.playbook-icon {
+  width: 38px; height: 38px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.playbook-name { font-size: 14px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.2px; line-height: 1.3; margin-top: 2px; }
+.playbook-desc { font-size: 12px; color: var(--text-muted); line-height: 1.55; flex: 1; }
+.playbook-personas { display: flex; flex-wrap: wrap; gap: 4px; }
+.playbook-persona {
+  font-size: 11px; font-weight: 500; color: var(--text-secondary);
+  background: var(--surface-warm); border: 1px solid var(--border-light);
+  padding: 2px 8px; border-radius: var(--radius-pill);
+}
+.playbook-channels { display: flex; gap: 6px; }
+.playbook-channel {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; color: var(--text-muted);
+  background: var(--surface-warm); border: 1px solid var(--border-light);
+  padding: 3px 8px; border-radius: var(--radius-pill);
+}
+.playbook-channel svg { width: 11px; height: 11px; }
+.playbook-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px; padding-top: 14px; border-top: 1px solid var(--border-light);
+}
+.playbook-stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-light); margin-bottom: 2px; }
+.playbook-stat-value { font-size: 15px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; }
+.playbook-stat-value.accent { color: var(--accent); }
+
 /* ─── Responsive ─── */
 @media (max-width: 900px) {
   .detail-left { width: 260px; min-width: 260px; }
@@ -915,6 +966,63 @@ const CAMPAIGNS_LIST = [
   { id: 1, name: 'Enterprise Fintech Q1', accounts: 3, personas: ['VP Sales', 'CRO', 'Head of RevOps'], contacts: 18, sent: 24, opened: 16, replied: 3, meetings: 2, status: 'active', channels: 'Email + LinkedIn', created: 'Jan 20, 2026', lastActivity: '2h ago' },
   { id: 2, name: 'Data Platform ABM', accounts: 2, personas: ['VP Engineering', 'Head of Data', 'CTO'], contacts: 11, sent: 14, opened: 9, replied: 1, meetings: 1, status: 'active', channels: 'Email + LinkedIn', created: 'Jan 28, 2026', lastActivity: 'Yesterday' },
   { id: 3, name: 'Product-Led Growth', accounts: 2, personas: ['VP Product', 'Head of Growth'], contacts: 8, sent: 9, opened: 5, replied: 0, meetings: 0, status: 'prospecting', channels: 'Email + LinkedIn', created: 'Feb 3, 2026', lastActivity: '3d ago' },
+];
+
+const PLAYBOOKS = [
+  {
+    id: 1, name: 'Enterprise Land & Expand',
+    description: 'Multi-thread into large enterprise accounts — champion, exec sponsor, and economic buyer — with coordinated messaging to accelerate deal cycles.',
+    tag: 'Enterprise', tagColor: 'prospecting',
+    icon: '🏢', iconBg: 'rgba(46,111,107,0.10)',
+    personas: ['VP Sales', 'CRO', 'Head of Procurement'],
+    channels: ['Email', 'LinkedIn'],
+    steps: 6, duration: '3 wks', avgMeetings: 4.2, timesUsed: 12,
+  },
+  {
+    id: 2, name: 'New Executive Hire',
+    description: 'Reach out when a new CRO or VP Sales joins a target account. New execs are 3× more likely to evaluate new vendors in their first 90 days.',
+    tag: 'Signal-Based', tagColor: 'engaged',
+    icon: '👔', iconBg: 'rgba(196,136,13,0.10)',
+    personas: ['Incoming CRO', 'VP Sales', 'Current Champion'],
+    channels: ['Email', 'LinkedIn'],
+    steps: 4, duration: '2 wks', avgMeetings: 5.1, timesUsed: 6,
+  },
+  {
+    id: 3, name: 'Fintech VP Outreach',
+    description: 'Target VP Sales and CROs at Series B+ fintech companies with a revenue growth angle. Triggers on funding announcements and hiring signals.',
+    tag: 'Fintech', tagColor: 'engaged',
+    icon: '💳', iconBg: 'rgba(58,139,102,0.10)',
+    personas: ['VP Sales', 'CRO', 'CFO'],
+    channels: ['Email', 'LinkedIn'],
+    steps: 5, duration: '2 wks', avgMeetings: 3.8, timesUsed: 8,
+  },
+  {
+    id: 4, name: 'Champion-Led Expansion',
+    description: 'Arm internal champions with ROI data and social proof to drive expansion conversations upward to exec sponsors in existing accounts.',
+    tag: 'Expansion', tagColor: 'prospecting',
+    icon: '🚀', iconBg: 'rgba(46,111,107,0.10)',
+    personas: ['Power User Champion', 'VP Sales', 'CFO'],
+    channels: ['Email', 'LinkedIn'],
+    steps: 5, duration: '3 wks', avgMeetings: 3.4, timesUsed: 9,
+  },
+  {
+    id: 5, name: 'Competitive Displacement',
+    description: 'Target accounts actively using a competitor. Battle card messaging and ROI comparison designed to open the door for SDR leaders and sales ops.',
+    tag: 'Competitive', tagColor: 'new',
+    icon: '⚔️', iconBg: 'rgba(196,77,77,0.10)',
+    personas: ['VP Sales', 'Head of Sales Ops', 'CRO'],
+    channels: ['Email', 'LinkedIn'],
+    steps: 7, duration: '4 wks', avgMeetings: 2.9, timesUsed: 4,
+  },
+  {
+    id: 6, name: 'PLG → Enterprise Conversion',
+    description: 'Convert self-serve or free-tier users at target accounts into enterprise contracts by targeting the product champion who can drive internal buy-in.',
+    tag: 'PLG', tagColor: 'new',
+    icon: '📈', iconBg: 'rgba(58,139,102,0.10)',
+    personas: ['Power User', 'SDR Manager', 'VP Sales'],
+    channels: ['Email'],
+    steps: 4, duration: '2 wks', avgMeetings: 3.1, timesUsed: 5,
+  },
 ];
 
 const ACCOUNTS = [
@@ -963,7 +1071,7 @@ let sidebarCollapsed = false;
 let builderStep = 0;
 let importModalOpen = false;
 let importModalTab = 'crm';
-let campaignForm = { name: '', source: 'crm', personas: ['VP Sales', 'CRO'] };
+let campaignForm = { name: '', source: 'crm', personas: ['VP Sales', 'CRO'], playbookName: null };
 let selectedAccounts = ACCOUNTS.slice(0, 4).map(a => a.id);
 let selectedChannels = ['Email', 'LinkedIn'];
 let showAddMoreDropdown = false;
@@ -1091,6 +1199,9 @@ function renderTopBar() {
     case 'campaign-detail':
       crumbs = `<span data-nav="campaigns">Campaigns</span><span class="sep">/</span><span class="current">Enterprise Fintech Q1</span>`;
       break;
+    case 'playbooks':
+      crumbs = `<span class="current">Playbooks</span>`;
+      break;
     default:
       crumbs = `<span class="current">Accounts</span>`;
   }
@@ -1111,8 +1222,81 @@ function renderContent() {
     case 'campaigns': return renderCampaignsList();
     case 'campaign-builder': return renderCampaignBuilder();
     case 'campaign-detail': return renderCampaignDetail();
+    case 'playbooks': return renderPlaybooksList();
     default: return renderAccountsDashboard();
   }
+}
+
+function renderPlaybooksList() {
+  const totalMeetings = PLAYBOOKS.reduce((s, p) => s + p.avgMeetings, 0);
+  const totalUsed = PLAYBOOKS.reduce((s, p) => s + p.timesUsed, 0);
+
+  const channelIcon = (ch) => ch === 'Email'
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>`;
+
+  return `
+    <div class="page-header">
+      <div>
+        <h1>ABM Playbooks</h1>
+        <p>Pre-built account-based plays Alice executes autonomously — pick one and launch in minutes</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-secondary">${icons.plus} Request a Playbook</button>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-card"><div class="stat-label">Playbooks Available</div><div class="stat-value">${PLAYBOOKS.length}</div><div class="stat-change up">ready to launch</div></div>
+      <div class="stat-card"><div class="stat-label">Times Used</div><div class="stat-value">${totalUsed}</div><div class="stat-change up">across all teams</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Meetings / Playbook</div><div class="stat-value">${(totalMeetings / PLAYBOOKS.length).toFixed(1)}</div><div class="stat-change up">per campaign run</div></div>
+      <div class="stat-card"><div class="stat-label">Channels Supported</div><div class="stat-value">2</div><div class="stat-change up">Email + LinkedIn</div></div>
+    </div>
+    <div class="playbooks-grid">
+      ${PLAYBOOKS.map(p => `
+        <div class="playbook-card">
+          <div class="playbook-card-top">
+            <div style="display:flex;align-items:flex-start;gap:12px;flex:1">
+              <div class="playbook-icon" style="background:${p.iconBg}">${p.icon}</div>
+              <div style="flex:1">
+                <div class="playbook-name">${p.name}</div>
+                <span class="badge-sm badge-${p.tagColor}" style="margin-top:4px;display:inline-flex">${p.tag}</span>
+              </div>
+            </div>
+          </div>
+          <div class="playbook-desc">${p.description}</div>
+          <div>
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-light);margin-bottom:6px">Target Personas</div>
+            <div class="playbook-personas">
+              ${p.personas.map(per => `<span class="playbook-persona">${per}</span>`).join('')}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="playbook-channels">
+              ${p.channels.map(ch => `<span class="playbook-channel">${channelIcon(ch)} ${ch}</span>`).join('')}
+            </div>
+            <span style="font-size:11px;color:var(--text-light)">${p.steps} steps · ${p.duration}</span>
+          </div>
+          <div class="playbook-stats">
+            <div>
+              <div class="playbook-stat-label">Avg Meetings</div>
+              <div class="playbook-stat-value accent">${p.avgMeetings}</div>
+            </div>
+            <div>
+              <div class="playbook-stat-label">Times Used</div>
+              <div class="playbook-stat-value">${p.timesUsed}</div>
+            </div>
+            <div>
+              <div class="playbook-stat-label">Duration</div>
+              <div class="playbook-stat-value">${p.duration}</div>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:2px" data-action="use-playbook" data-playbook="${p.id}">
+            Use Playbook →
+          </button>
+        </div>
+      `).join('')}
+    </div>
+  `;
 }
 
 function renderCampaignsList() {
@@ -1394,6 +1578,9 @@ function renderCampaignBuilder() {
         <h1>New ABM Campaign</h1>
         <p>Create coordinated multi-threaded outreach across target accounts</p>
       </div>
+      ${campaignForm.playbookName ? `<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(46,111,107,0.08);border:1px solid rgba(46,111,107,0.2);border-radius:20px;font-size:12px;color:var(--accent);">
+        <span>📋</span><span>Using playbook: <strong>${campaignForm.playbookName}</strong></span>
+      </div>` : ''}
     </div>
     <div class="builder-steps">
       ${steps.map((s, i) => `
@@ -1772,10 +1959,23 @@ function bindEvents() {
             showToast('All sample files uploaded', 'info');
           }
           break;
+        case 'use-playbook': {
+          const playbookId = parseInt(el.dataset.playbook);
+          const playbook = PLAYBOOKS.find(p => p.id === playbookId);
+          if (playbook) {
+            campaignForm.personas = [...playbook.personas];
+            campaignForm.playbookName = playbook.name;
+          }
+          currentView = 'campaign-builder';
+          builderStep = 0;
+          render();
+          break;
+        }
         case 'new-campaign':
         case 'launch-campaign':
           currentView = 'campaign-builder';
           builderStep = 0;
+          campaignForm.playbookName = null;
           render();
           break;
         case 'builder-next':
