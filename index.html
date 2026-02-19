@@ -1222,6 +1222,7 @@ let searchQuery = '';
 let filterSignal = 'all';
 let accountDetailTab = 'contacts';
 let campaignDetailTab = 'timeline';
+let campaignAnalyticsPeriod = 'weekly';
 let showEditCampaignPanel = false;
 let editCampaignSection = 'settings';
 let sidebarCollapsed = false;
@@ -2246,100 +2247,147 @@ function renderCampaignDetail() {
       </div>
 
       ` : `
-      <!-- Analytics tab -->
+      <!-- Analytics tab — 11x style -->
+      ${(() => {
+        // Period toggle data
+        const periods = {
+          weekly:  { labels:['S','M','T','W','T','F','S'],   cur:[1,3,2,5,3,4,2], prev:[0,2,1,3,2,3,1], yMax:6, yStep:[0,2,4,6] },
+          monthly: { labels:['W1','W2','W3','W4'],            cur:[4,7,5,9],        prev:[3,5,4,7],       yMax:12, yStep:[0,4,8,12] },
+          yearly:  { labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], cur:[2,3,4,5,8,9,7,5,6,8,7,5], prev:[1,2,3,4,6,7,5,4,5,6,5,4], yMax:12, yStep:[0,4,8,12] },
+        };
+        const pd = periods[campaignAnalyticsPeriod];
 
-      <!-- Funnel -->
-      <div style="padding:24px;border-radius:var(--radius-md);border:1px solid var(--border-light);background:var(--surface);margin-bottom:16px">
-        <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:20px">Outreach funnel</div>
-        ${(() => {
-          const stages = [
-            { label:'Contacted',  n:9,  pct:100, color:'var(--accent)',   conv:null          },
-            { label:'Opened',     n:4,  pct:44,  color:'#3B82F6',        conv:'44% opened'  },
-            { label:'Replied',    n:1,  pct:11,  color:'#F59E0B',        conv:'25% replied' },
-            { label:'Meeting',    n:0,  pct:0,   color:'#10B981',        conv:'0% booked'   },
-          ];
-          return stages.map((s, i) => `
-            ${i > 0 ? `
-              <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin:2px 0">
-                <div style="height:20px;width:1.5px;background:var(--border-light);margin:0 auto"></div>
-                <span style="font-size:11px;color:var(--text-light);position:absolute;margin-left:120px">${s.conv}</span>
-              </div>
-            ` : ''}
-            <div style="display:flex;align-items:center;gap:14px">
-              <div style="width:90px;flex-shrink:0;text-align:right">
-                <div style="font-size:12px;font-weight:600;color:var(--text-secondary)">${s.label}</div>
-              </div>
-              <div style="flex:1;position:relative;height:36px;display:flex;align-items:center">
-                <div style="position:absolute;left:0;right:0;height:36px;background:var(--border-light);border-radius:4px;opacity:0.4"></div>
-                <div style="position:relative;height:36px;width:${Math.max(s.pct,2)}%;background:${s.color};border-radius:4px;opacity:${s.n===0?0.25:0.85};transition:width 600ms ease;display:flex;align-items:center;padding:0 12px;min-width:${s.n>0?'40px':'0'}">
-                  ${s.n > 0 ? `<span style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap">${s.n}</span>` : ''}
-                </div>
-                ${s.n === 0 ? `<span style="font-size:13px;font-weight:700;color:var(--text-light);margin-left:8px">0</span>` : ''}
-              </div>
-              <div style="width:48px;flex-shrink:0;text-align:right">
-                <span style="font-size:13px;font-weight:700;color:${s.pct>0?'var(--text-primary)':'var(--text-light)'}">${s.pct}%</span>
-              </div>
-            </div>
-          `).join('');
-        })()}
-      </div>
+        // SVG line chart
+        const svgW=520, svgH=180, pL=44, pR=20, pT=16, pB=32;
+        const plotW = svgW-pL-pR, plotH = svgH-pT-pB;
+        const cx = (i) => pL + (i/(pd.labels.length-1))*plotW;
+        const cy = (v) => pT + (1-v/pd.yMax)*plotH;
+        const pts = (arr) => arr.map((v,i) => `${cx(i)},${cy(v)}`).join(' ');
+        const peakI = pd.cur.indexOf(Math.max(...pd.cur));
 
-      <!-- 2-col metric cards -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
-        ${[
-          { label:'Open rate',   value:'44%', sub:'4 / 9 sent',        color:'#3B82F6' },
-          { label:'Reply rate',  value:'11%', sub:'1 / 9 sent',        color:'#F59E0B' },
-          { label:'Click rate',  value:'11%', sub:'1 click tracked',   color:'var(--accent)' },
-          { label:'Meetings',    value:'0',   sub:'In progress',       color:'var(--text-light)' },
-        ].map(m => `
-          <div style="padding:16px;border-radius:var(--radius-md);border:1px solid var(--border-light);background:var(--surface)">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:6px">${m.label}</div>
-            <div style="font-size:22px;font-weight:800;color:${m.color};margin-bottom:2px">${m.value}</div>
-            <div style="font-size:11px;color:var(--text-muted)">${m.sub}</div>
+        const gridLines = pd.yStep.map(v => `
+          <line x1="${pL}" y1="${cy(v)}" x2="${svgW-pR}" y2="${cy(v)}" stroke="#EBE8E0" stroke-width="1"/>
+          <text x="${pL-8}" y="${cy(v)+4}" font-size="10" fill="#9CA3A0" text-anchor="end" font-family="Inter,sans-serif">${v}</text>
+        `).join('');
+        const xLabels = pd.labels.map((l,i) => `
+          <text x="${cx(i)}" y="${svgH-6}" font-size="10" fill="#9CA3A0" text-anchor="middle" font-family="Inter,sans-serif">${l}</text>
+        `).join('');
+
+        const svgChart = `
+          <svg width="100%" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" style="overflow:visible">
+            ${gridLines}
+            <polyline points="${pts(pd.prev)}" fill="none" stroke="#D4D0C8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="${pts(pd.cur)}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <circle cx="${cx(peakI)}" cy="${cy(pd.cur[peakI])}" r="5" fill="var(--accent)" stroke="white" stroke-width="2"/>
+            ${xLabels}
+          </svg>`;
+
+        // KPI cards
+        const kpis = [
+          { icon:'✉️', iconBg:'#EA4335', label:'Meeting Requests (Alice)', value:'9',  trend:'+14%', trendLabel:'vs Last Week', color:'var(--success)', avatars:['A'] },
+          { icon:'📅', iconBg:'#3B82F6', label:'Meetings Booked',         value:'0',  trend:'+0%',  trendLabel:'vs Last Week', color:'var(--text-light)', avatars:['A'] },
+          { icon:'☁️', iconBg:'#00A1E0', label:'Pipeline Generated',       value:'$120K', trend:'+19%', trendLabel:'vs Last Week', color:'var(--success)', avatars:['A','S'] },
+          { icon:'🏆', iconBg:'#00A1E0', label:'Closed Won',               value:'$0',  trend:'—',    trendLabel:'in progress',   color:'var(--text-light)', avatars:['A'] },
+        ];
+
+        // Activity feed items
+        const feed = [
+          { initials:'SC', name:'Sarah Chen',      role:'VP of Sales',          company:'Stripe',    action:'Replied',      actionColor:'var(--success)',     actionBg:'rgba(58,139,102,0.12)',    time:'2h ago' },
+          { initials:'MW', name:'Marcus Webb',     role:'Head of Revenue Ops',  company:'Stripe',    action:'Opened 3×',    actionColor:'#3B82F6',            actionBg:'rgba(59,130,246,0.12)',    time:'1d ago' },
+          { initials:'DR', name:'Diana Rodriguez', role:'CRO',                  company:'Stripe',    action:'Connected',    actionColor:'var(--accent)',       actionBg:'var(--accent-light)',     time:'1d ago' },
+          { initials:'JL', name:'James Liu',       role:'SDR Manager',          company:'Stripe',    action:'Email Sent',   actionColor:'var(--text-muted)',   actionBg:'var(--border)',           time:'3d ago' },
+          { initials:'PP', name:'Priya Patel',     role:'VP Marketing',         company:'Stripe',    action:'Researching',  actionColor:'var(--text-light)',   actionBg:'var(--border-light)',     time:'5d ago' },
+        ];
+
+        return `
+        <!-- Period toggle -->
+        <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:20px">
+          <div style="display:flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--surface)">
+            ${['weekly','monthly','yearly'].map(p => `
+              <button data-analytics-period="${p}" style="padding:6px 14px;font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all 150ms ease;${campaignAnalyticsPeriod===p?'background:var(--accent);color:#fff':'background:transparent;color:var(--text-muted)'}">
+                ${p.charAt(0).toUpperCase()+p.slice(1)}
+              </button>
+            `).join('')}
           </div>
-        `).join('')}
-      </div>
+        </div>
 
-      <div style="padding:20px;border-radius:var(--radius-md);border:1px solid var(--border-light);background:var(--surface);margin-bottom:16px">
-        <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:16px">Activity by channel</div>
-        <div style="display:flex;flex-direction:column;gap:12px">
-          ${[
-            { channel:'Email',    sent:7, opens:4, clicks:1, replies:1, color:'#3B82F6' },
-            { channel:'LinkedIn', sent:2, opens:0, clicks:0, replies:0, color:'#0A66C2' },
-          ].map(ch => `
-            <div>
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                <span style="font-size:12px;font-weight:600;color:var(--text-secondary)">${ch.channel}</span>
-                <span style="font-size:11px;color:var(--text-muted)">${ch.sent} sent · ${ch.opens} opens · ${ch.replies} repl${ch.replies===1?'y':'ies'}</span>
+        <!-- 4 KPI cards -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+          ${kpis.map(k => `
+            <div style="padding:20px;border-radius:var(--radius-md);border:1px solid var(--border-light);background:var(--surface)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+                <div style="width:22px;height:22px;border-radius:6px;background:${k.iconBg};display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">${k.icon}</div>
+                <span style="font-size:11px;font-weight:500;color:var(--text-muted);line-height:1.3">${k.label}</span>
               </div>
-              <div style="height:6px;border-radius:3px;background:var(--border-light);overflow:hidden">
-                <div style="height:100%;width:${Math.round((ch.opens/Math.max(ch.sent,1))*100)}%;background:${ch.color};border-radius:3px;transition:width 600ms ease"></div>
+              <div style="font-size:28px;font-weight:800;color:var(--text-primary);letter-spacing:-1px;margin-bottom:10px">${k.value}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="font-size:11px;font-weight:600;color:${k.color};display:flex;align-items:center;gap:4px">
+                  ${k.trend !== '—' ? '↑ ' : ''}<span>${k.trend}</span>
+                  <span style="font-weight:400;color:var(--text-light)">${k.trendLabel}</span>
+                </div>
+                <div style="display:flex">
+                  ${k.avatars.map(av => `<div style="width:22px;height:22px;border-radius:50%;background:var(--accent-light);border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--accent);margin-left:-4px">${av}</div>`).join('')}
+                </div>
               </div>
             </div>
           `).join('')}
         </div>
-      </div>
 
-      <div style="padding:20px;border-radius:var(--radius-md);border:1px solid var(--border-light);background:var(--surface)">
-        <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:16px">Engagement by persona</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          ${[
-            { role:'VP of Sales',         score:3, max:3, label:'Replied' },
-            { role:'Head of Revenue Ops', score:2, max:3, label:'Opened' },
-            { role:'CRO',                 score:1, max:3, label:'Connected' },
-            { role:'SDR Manager',         score:0, max:3, label:'Sent' },
-            { role:'VP Marketing',        score:0, max:3, label:'Pending' },
-          ].map(p => `
-            <div style="display:flex;align-items:center;gap:12px">
-              <div style="font-size:12px;color:var(--text-secondary);width:160px;flex-shrink:0">${p.role}</div>
-              <div style="flex:1;height:8px;border-radius:4px;background:var(--border-light);overflow:hidden">
-                <div style="height:100%;width:${Math.round((p.score/p.max)*100)}%;background:var(--accent);border-radius:4px"></div>
+        <!-- Worker Output chart + Activity Feed -->
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:16px">
+          <!-- Chart -->
+          <div style="padding:20px;border-radius:var(--radius-md);border:1px solid var(--border-light);background:var(--surface)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Worker Output</span>
               </div>
-              <div style="font-size:11px;font-weight:600;color:var(--text-muted);width:64px;text-align:right">${p.label}</div>
+              <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-weight:600;color:var(--text-secondary);cursor:pointer">
+                Outreach Sent
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
             </div>
-          `).join('')}
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted)">
+                <div style="width:20px;height:2.5px;background:var(--accent);border-radius:2px"></div>
+                This ${campaignAnalyticsPeriod === 'weekly' ? 'Week' : campaignAnalyticsPeriod === 'monthly' ? 'Month' : 'Year'}
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted)">
+                <div style="width:20px;height:2px;background:#D4D0C8;border-radius:2px"></div>
+                Previous
+              </div>
+            </div>
+            ${svgChart}
+          </div>
+
+          <!-- Activity Feed -->
+          <div style="border-radius:var(--radius-md);border:1px solid var(--border-light);background:var(--surface);display:flex;flex-direction:column;overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border-light);flex-shrink:0">
+              <div style="display:flex;align-items:center;gap:7px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Activity Feed</span>
+              </div>
+              <div style="font-size:16px;color:var(--text-light);cursor:pointer;letter-spacing:2px">···</div>
+            </div>
+            <div style="overflow-y:auto;flex:1">
+              ${feed.map(f => `
+                <div style="display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border-light)">
+                  <div style="width:34px;height:34px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0">${f.initials}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:12px;font-weight:600;color:var(--text-primary)">${f.name}</div>
+                    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">${f.role} · ${f.company}</div>
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                      <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:var(--radius-pill);background:${f.actionBg};color:${f.actionColor}">${f.action}</span>
+                      <span style="font-size:10px;color:var(--text-light)">${f.time}</span>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
         </div>
-      </div>
+        `;
+      })()}
       `}
 
     </div>
@@ -2610,6 +2658,11 @@ function bindEvents() {
   // Campaign detail tabs
   document.querySelectorAll('[data-campaign-tab]').forEach(el => {
     el.onclick = () => { campaignDetailTab = el.dataset.campaignTab; render(); };
+  });
+
+  // Analytics period toggle
+  document.querySelectorAll('[data-analytics-period]').forEach(el => {
+    el.onclick = () => { campaignAnalyticsPeriod = el.dataset.analyticsPeriod; render(); };
   });
 
   // Edit campaign panel section nav
