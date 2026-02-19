@@ -1208,14 +1208,12 @@ function renderSidebar() {
   const aliceMark = `<svg width="22" height="22" viewBox="0 0 32 32" fill="none">
     <path d="M16 2 C15 8 8 15 2 16 C8 17 15 24 16 30 C17 24 24 17 30 16 C24 15 17 8 16 2 Z" fill="#1E2321"/>
   </svg>`;
-  // 11x mark: two wing/crescent shapes — larger opens lower-left, smaller opens upper-right
-  const logoMark = `<svg width="26" height="22" viewBox="0 0 32 28" fill="none">
-    <defs>
-      <mask id="ll-a"><rect width="32" height="28" fill="white"/><circle cx="7" cy="19" r="9" fill="black"/></mask>
-      <mask id="ll-b"><rect width="32" height="28" fill="white"/><circle cx="26" cy="9" r="7" fill="black"/></mask>
-    </defs>
-    <circle cx="13" cy="11" r="12" mask="url(#ll-a)" fill="rgba(30,35,33,0.4)"/>
-    <circle cx="20" cy="17" r="9" mask="url(#ll-b)" fill="rgba(30,35,33,0.4)"/>
+  // 11x mark: two Pac-Man sectors — large (mouth lower-right) + small (mouth upper-left)
+  // Shape 1: center(16,14) r=14, mouth from 0°→90° (lower-right wedge removed)
+  // Shape 2: center(28,26) r=10, mouth from 180°→270° (upper-left wedge removed)
+  const logoMark = `<svg width="26" height="24" viewBox="0 0 42 38" fill="none">
+    <path d="M 16 14 L 30 14 A 14 14 0 1 0 16 28 Z" fill="rgba(30,35,33,0.4)"/>
+    <path d="M 28 26 L 18 26 A 10 10 0 1 0 28 16 Z" fill="rgba(30,35,33,0.4)"/>
   </svg>`;
 
   if (!sidebarCollapsed) {
@@ -1262,7 +1260,7 @@ function renderSidebar() {
 }
 
 function renderTopBar() {
-  const markSvg = `<svg width="22" height="19" viewBox="0 0 32 28" fill="none"><defs><mask id="tb-a"><rect width="32" height="28" fill="white"/><circle cx="7" cy="19" r="9" fill="black"/></mask><mask id="tb-b"><rect width="32" height="28" fill="white"/><circle cx="26" cy="9" r="7" fill="black"/></mask></defs><circle cx="13" cy="11" r="12" mask="url(#tb-a)" fill="var(--text-primary)"/><circle cx="20" cy="17" r="9" mask="url(#tb-b)" fill="var(--text-primary)"/></svg>`;
+  const markSvg = `<svg width="22" height="20" viewBox="0 0 42 38" fill="none"><path d="M 16 14 L 30 14 A 14 14 0 1 0 16 28 Z" fill="var(--text-primary)"/><path d="M 28 26 L 18 26 A 10 10 0 1 0 28 16 Z" fill="var(--text-primary)"/></svg>`;
   const a = selectedAccount;
   let crumbs = '';
   switch(currentView) {
