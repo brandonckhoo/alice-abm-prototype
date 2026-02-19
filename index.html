@@ -944,6 +944,50 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 .playbook-stat-value { font-size: 15px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; }
 .playbook-stat-value.accent { color: var(--accent); }
 
+/* ─── Contacts ─── */
+.contacts-table { width: 100%; border-collapse: collapse; }
+.contacts-table th { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-light); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.contacts-table td { padding: 13px 16px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+.contacts-table tr:last-child td { border-bottom: none; }
+.contacts-table tr:hover td { background: var(--surface-warm); }
+.contact-name-cell { display: flex; align-items: center; gap: 10px; }
+.contact-initials { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.contact-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.contact-title { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.persona-chip { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: var(--radius-pill); background: rgba(46,111,107,0.08); color: var(--accent); }
+.persona-chip.influencer { background: rgba(107,115,112,0.08); color: var(--text-muted); }
+.persona-chip.champion { background: rgba(200,120,40,0.08); color: #C87828; }
+.contacts-filters { display: flex; align-items: center; gap: 8px; padding: 14px 24px; border-bottom: 1px solid var(--border-light); }
+.contacts-table-wrap { overflow-y: auto; flex: 1; padding: 0 8px; }
+
+/* ─── Signals ─── */
+.signals-layout { display: flex; flex: 1; overflow: hidden; }
+.signals-feed { flex: 1; overflow-y: auto; padding: 0 8px 24px; }
+.signal-item { display: flex; gap: 14px; padding: 16px; border-radius: var(--radius-lg); margin: 4px 0; cursor: pointer; transition: background var(--transition-fast); border: 1px solid transparent; }
+.signal-item:hover { background: var(--surface-warm); border-color: var(--border-light); }
+.signal-item.selected { background: rgba(46,111,107,0.05); border-color: rgba(46,111,107,0.2); }
+.signal-icon-wrap { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.signal-icon-wrap.hot { background: rgba(196,77,77,0.10); }
+.signal-icon-wrap.warm { background: rgba(200,140,40,0.10); }
+.signal-icon-wrap.cold { background: rgba(107,115,112,0.10); }
+.signal-body { flex: 1; min-width: 0; }
+.signal-headline { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+.signal-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.signal-account-tag { font-size: 11px; font-weight: 600; color: var(--accent); background: rgba(46,111,107,0.08); padding: 2px 7px; border-radius: var(--radius-pill); }
+.signal-time { font-size: 11px; color: var(--text-light); }
+.signal-detail { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.signal-action-chip { margin-top: 8px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--accent); background: rgba(46,111,107,0.08); padding: 4px 10px; border-radius: var(--radius-pill); cursor: pointer; }
+.signal-action-chip:hover { background: rgba(46,111,107,0.14); }
+.signals-sidebar { width: 260px; min-width: 260px; border-left: 1px solid var(--border-light); padding: 20px 16px; overflow-y: auto; }
+.signal-filter-group { margin-bottom: 20px; }
+.signal-filter-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-light); margin-bottom: 8px; }
+.signal-filter-opt { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: var(--radius-md); cursor: pointer; font-size: 12px; color: var(--text-muted); }
+.signal-filter-opt:hover { background: var(--surface-warm); color: var(--text-primary); }
+.signal-filter-opt.active { background: rgba(46,111,107,0.08); color: var(--accent); font-weight: 600; }
+.signal-count-badge { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; background: var(--border); color: var(--text-muted); }
+.signal-count-badge.hot { background: rgba(196,77,77,0.12); color: #C44D4D; }
+.signal-count-badge.warm { background: rgba(200,140,40,0.12); color: #C88C28; }
+
 /* ─── Responsive ─── */
 @media (max-width: 900px) {
   .detail-left { width: 260px; min-width: 260px; }
@@ -966,6 +1010,36 @@ const CAMPAIGNS_LIST = [
   { id: 1, name: 'Enterprise Fintech Q1', accounts: 3, personas: ['VP Sales', 'CRO', 'Head of RevOps'], contacts: 18, sent: 24, opened: 16, replied: 3, meetings: 2, status: 'active', channels: 'Email + LinkedIn', created: 'Jan 20, 2026', lastActivity: '2h ago' },
   { id: 2, name: 'Data Platform ABM', accounts: 2, personas: ['VP Engineering', 'Head of Data', 'CTO'], contacts: 11, sent: 14, opened: 9, replied: 1, meetings: 1, status: 'active', channels: 'Email + LinkedIn', created: 'Jan 28, 2026', lastActivity: 'Yesterday' },
   { id: 3, name: 'Product-Led Growth', accounts: 2, personas: ['VP Product', 'Head of Growth'], contacts: 8, sent: 9, opened: 5, replied: 0, meetings: 0, status: 'prospecting', channels: 'Email + LinkedIn', created: 'Feb 3, 2026', lastActivity: '3d ago' },
+];
+
+const CONTACTS = [
+  { id: 1, name: 'Sarah Chen', title: 'VP of Sales', account: 'Stripe', accountId: 1, industry: 'Fintech', email: 'sarah.chen@stripe.com', linkedin: 'linkedin.com/in/sarahchen', status: 'Replied', channel: 'Email', lastActivity: '2h ago', campaign: 'Enterprise Fintech Q1', persona: 'Decision Maker', initials: 'SC' },
+  { id: 2, name: 'Marcus Webb', title: 'Head of Revenue Ops', account: 'Stripe', accountId: 1, industry: 'Fintech', email: 'marcus.webb@stripe.com', linkedin: 'linkedin.com/in/marcuswebb', status: 'Opened 3x', channel: 'Email', lastActivity: '1d ago', campaign: 'Enterprise Fintech Q1', persona: 'Influencer', initials: 'MW' },
+  { id: 3, name: 'Diana Rodriguez', title: 'CRO', account: 'Stripe', accountId: 1, industry: 'Fintech', email: 'diana.r@stripe.com', linkedin: 'linkedin.com/in/dianarod', status: 'Connected', channel: 'LinkedIn', lastActivity: '1d ago', campaign: 'Enterprise Fintech Q1', persona: 'Decision Maker', initials: 'DR' },
+  { id: 4, name: 'James Liu', title: 'SDR Manager', account: 'Stripe', accountId: 1, industry: 'Fintech', email: 'j.liu@stripe.com', linkedin: 'linkedin.com/in/jamesliu', status: 'Sequenced', channel: 'Email + LI', lastActivity: '3d ago', campaign: 'Enterprise Fintech Q1', persona: 'Champion', initials: 'JL' },
+  { id: 5, name: 'Priya Patel', title: 'VP Marketing', account: 'Stripe', accountId: 1, industry: 'Fintech', email: 'priya@stripe.com', linkedin: 'linkedin.com/in/priyap', status: 'Researching', channel: '—', lastActivity: 'Pending', campaign: 'Enterprise Fintech Q1', persona: 'Influencer', initials: 'PP' },
+  { id: 6, name: 'Ankur Mehta', title: 'VP of Sales', account: 'Databricks', accountId: 2, industry: 'Data & AI', email: 'ankur@databricks.com', linkedin: 'linkedin.com/in/ankurm', status: 'Replied', channel: 'Email', lastActivity: 'Yesterday', campaign: 'Data Platform ABM', persona: 'Decision Maker', initials: 'AM' },
+  { id: 7, name: 'Rachel Kim', title: 'Head of Data', account: 'Databricks', accountId: 2, industry: 'Data & AI', email: 'r.kim@databricks.com', linkedin: 'linkedin.com/in/rachelk', status: 'Opened 2x', channel: 'Email', lastActivity: '2d ago', campaign: 'Data Platform ABM', persona: 'Champion', initials: 'RK' },
+  { id: 8, name: 'David Park', title: 'CTO', account: 'Databricks', accountId: 2, industry: 'Data & AI', email: 'd.park@databricks.com', linkedin: 'linkedin.com/in/davidp', status: 'Sequenced', channel: 'LinkedIn', lastActivity: '3d ago', campaign: 'Data Platform ABM', persona: 'Decision Maker', initials: 'DP' },
+  { id: 9, name: 'Lena Fischer', title: 'VP Design', account: 'Figma', accountId: 3, industry: 'Design Tools', email: 'lena@figma.com', linkedin: 'linkedin.com/in/lenaf', status: 'Sequenced', channel: 'Email', lastActivity: '4d ago', campaign: 'Product-Led Growth', persona: 'Decision Maker', initials: 'LF' },
+  { id: 10, name: 'Chris Nguyen', title: 'Head of Growth', account: 'Figma', accountId: 3, industry: 'Design Tools', email: 'chris.n@figma.com', linkedin: 'linkedin.com/in/chrisn', status: 'Opened 1x', channel: 'Email', lastActivity: '5d ago', campaign: 'Product-Led Growth', persona: 'Influencer', initials: 'CN' },
+  { id: 11, name: 'Tara Singh', title: 'CRO', account: 'Notion', accountId: 4, industry: 'Productivity', email: 'tara@notion.so', linkedin: 'linkedin.com/in/taras', status: 'New', channel: '—', lastActivity: 'Queued', campaign: '—', persona: 'Decision Maker', initials: 'TS' },
+  { id: 12, name: 'Yuki Tanaka', title: 'Head of Sales', account: 'Plaid', accountId: 5, industry: 'Fintech', email: 'yuki@plaid.com', linkedin: 'linkedin.com/in/yukit', status: 'New', channel: '—', lastActivity: 'Queued', campaign: '—', persona: 'Decision Maker', initials: 'YT' },
+];
+
+const SIGNALS_FEED = [
+  { id: 1, accountId: 1, account: 'Stripe', industry: 'Fintech', type: 'intent', icon: '🔥', signal: 'VP Sales visited pricing page 3× this week', detail: 'Sarah Chen (VP Sales) and 2 anonymous visitors from stripe.com hit the pricing page 3 times in the last 7 days.', time: '2h ago', priority: 'hot', action: 'Start outreach to Sarah Chen' },
+  { id: 2, accountId: 1, account: 'Stripe', industry: 'Fintech', type: 'hiring', icon: '📋', signal: 'Job posting: Head of Revenue Operations', detail: 'Stripe posted a new JD for Head of Revenue Operations — signals they\'re scaling their sales org and investing in RevOps tooling.', time: '1d ago', priority: 'hot', action: 'Add RevOps angle to messaging' },
+  { id: 3, accountId: 2, account: 'Databricks', industry: 'Data & AI', type: 'funding', icon: '💰', signal: 'Series J funding: $15B valuation confirmed', detail: 'Databricks closed their Series J at $15B valuation. Headcount expansion expected — sales team likely growing.', time: '1d ago', priority: 'hot', action: 'Lead with growth messaging' },
+  { id: 4, accountId: 1, account: 'Stripe', industry: 'Fintech', type: 'engagement', icon: '🔗', signal: 'CRO engaged with your LinkedIn post', detail: 'Diana Rodriguez (CRO, Stripe) liked your post on AI-driven outbound. High buying intent signal.', time: '1d ago', priority: 'warm', action: 'Send follow-up LinkedIn message' },
+  { id: 5, accountId: 3, account: 'Figma', industry: 'Design Tools', type: 'hiring', icon: '📋', signal: 'Job posting: SDR Team Lead (3 open roles)', detail: 'Figma is hiring 3 SDR Team Leads — major signal they\'re building out outbound sales capacity.', time: '2d ago', priority: 'warm', action: 'Pitch SDR scale story' },
+  { id: 6, accountId: 2, account: 'Databricks', industry: 'Data & AI', type: 'intent', icon: '🔥', signal: 'Head of Data opened email 2× — no reply yet', detail: 'Rachel Kim opened the intro email twice but hasn\'t replied. Time to send a follow-up with a different angle.', time: '2d ago', priority: 'warm', action: 'Send follow-up to Rachel Kim' },
+  { id: 7, accountId: 4, account: 'Notion', industry: 'Productivity', type: 'tech', icon: '🛠️', signal: 'Tech stack change: Replaced Outreach with HubSpot', detail: 'Notion migrated from Outreach to HubSpot Sales Hub — signals they\'re reevaluating their entire sales stack.', time: '3d ago', priority: 'warm', action: 'Lead with HubSpot integration angle' },
+  { id: 8, accountId: 5, account: 'Plaid', industry: 'Fintech', type: 'news', icon: '📰', signal: 'New CRO hire: Jennifer Walsh joins from Brex', detail: 'Plaid hired Jennifer Walsh as CRO — new leadership often re-evaluates vendors and tools in first 90 days.', time: '3d ago', priority: 'warm', action: 'Reach out to new CRO directly' },
+  { id: 9, accountId: 6, account: 'Airtable', industry: 'Productivity', type: 'intent', icon: '👁️', signal: 'Anonymous visit from airtable.com to case studies', detail: '4 pageviews on the 11x case studies page from airtable.com IPs — someone is researching the product.', time: '4d ago', priority: 'warm', action: 'Launch outreach to Airtable ICP' },
+  { id: 10, accountId: 7, account: 'Ramp', industry: 'Fintech', type: 'funding', icon: '💰', signal: 'Series D: $300M raised, 2× headcount growth planned', detail: 'Ramp announced $300M Series D. CEO stated plan to double headcount in 2026 — big signal for sales team scaling.', time: '5d ago', priority: 'cold', action: 'Add Ramp to active campaigns' },
+  { id: 11, accountId: 3, account: 'Figma', industry: 'Design Tools', type: 'engagement', icon: '🔗', signal: 'Head of Growth viewed your LinkedIn profile', detail: 'Chris Nguyen (Head of Growth, Figma) viewed your LinkedIn profile — passive interest signal.', time: '5d ago', priority: 'cold', action: 'Send LinkedIn connection request' },
+  { id: 12, accountId: 8, account: 'Vercel', industry: 'Developer Tools', type: 'news', icon: '📰', signal: 'New VP Sales hired: Joining from Vercel competitor', detail: 'Vercel hired a new VP Sales from a direct competitor. New sales leaders often bring new tools.', time: '6d ago', priority: 'cold', action: 'Reach out with competitive angle' },
 ];
 
 const PLAYBOOKS = [
@@ -1199,6 +1273,12 @@ function renderTopBar() {
     case 'campaign-detail':
       crumbs = `<span data-nav="campaigns">Campaigns</span><span class="sep">/</span><span class="current">Enterprise Fintech Q1</span>`;
       break;
+    case 'leads':
+      crumbs = `<span class="current">Contacts</span>`;
+      break;
+    case 'signals':
+      crumbs = `<span class="current">Signals</span>`;
+      break;
     case 'playbooks':
       crumbs = `<span class="current">Playbooks</span>`;
       break;
@@ -1222,6 +1302,8 @@ function renderContent() {
     case 'campaigns': return renderCampaignsList();
     case 'campaign-builder': return renderCampaignBuilder();
     case 'campaign-detail': return renderCampaignDetail();
+    case 'leads': return renderContactsList();
+    case 'signals': return renderSignalsFeed();
     case 'playbooks': return renderPlaybooksList();
     default: return renderAccountsDashboard();
   }
@@ -1295,6 +1377,153 @@ function renderPlaybooksList() {
           </button>
         </div>
       `).join('')}
+    </div>
+  `;
+}
+
+function renderContactsList() {
+  const replied = CONTACTS.filter(c => c.status === 'Replied').length;
+  const sequenced = CONTACTS.filter(c => c.status === 'Sequenced' || c.status.includes('Opened')).length;
+  const accounts = [...new Set(CONTACTS.map(c => c.account))].length;
+
+  const statusClass = (s) => {
+    if (s === 'Replied') return 'badge-engaged';
+    if (s.includes('Opened')) return 'badge-prospecting';
+    if (s === 'Sequenced' || s === 'Connected') return 'badge-prospecting';
+    return 'badge-new';
+  };
+  const personaClass = (p) => {
+    if (p === 'Influencer') return 'influencer';
+    if (p === 'Champion') return 'champion';
+    return '';
+  };
+
+  return `
+    <div class="page-header">
+      <div>
+        <h1>Contacts</h1>
+        <p>${CONTACTS.length} contacts auto-prospected across ${accounts} accounts</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-secondary">${icons.search} Search contacts</button>
+        <button class="btn btn-primary">${icons.plus} Add Contact</button>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-card"><div class="stat-label">Total Contacts</div><div class="stat-value">${CONTACTS.length}</div><div class="stat-change up">+8 auto-prospected</div></div>
+      <div class="stat-card"><div class="stat-label">Replied</div><div class="stat-value">${replied}</div><div class="stat-change up">across ${accounts} accounts</div></div>
+      <div class="stat-card"><div class="stat-label">Active in Sequence</div><div class="stat-value">${sequenced}</div><div class="stat-change up">email + LinkedIn</div></div>
+      <div class="stat-card"><div class="stat-label">Accounts Covered</div><div class="stat-value">${accounts}</div><div class="stat-change up">of 8 target accounts</div></div>
+    </div>
+    <div class="contacts-filters">
+      <div class="search-bar" style="flex:1;max-width:320px"><span class="search-icon">${icons.search}</span><input class="search-input" placeholder="Search contacts..." /></div>
+      <button class="filter-btn active">All</button>
+      <button class="filter-btn">Decision Makers</button>
+      <button class="filter-btn">Champions</button>
+      <button class="filter-btn">Influencers</button>
+    </div>
+    <div class="contacts-table-wrap">
+      <table class="contacts-table">
+        <thead>
+          <tr>
+            <th>Contact</th>
+            <th>Persona</th>
+            <th>Account</th>
+            <th>Status</th>
+            <th>Channel</th>
+            <th>Campaign</th>
+            <th>Last Activity</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${CONTACTS.map(c => `
+            <tr>
+              <td>
+                <div class="contact-name-cell">
+                  <div class="contact-initials" style="background:${c.status === 'Replied' ? 'var(--accent)' : c.status.includes('Opened') ? '#C88C28' : 'var(--text-light)'}">${c.initials}</div>
+                  <div>
+                    <div class="contact-name">${c.name}</div>
+                    <div class="contact-title">${c.title}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="persona-chip ${personaClass(c.persona)}">${c.persona}</span></td>
+              <td><span style="font-size:12px;font-weight:600;color:var(--text-primary)">${c.account}</span><br><span style="font-size:11px;color:var(--text-light)">${c.industry}</span></td>
+              <td><span class="badge-sm ${statusClass(c.status)}">${c.status}</span></td>
+              <td><span style="font-size:12px;color:var(--text-muted)">${c.channel}</span></td>
+              <td><span style="font-size:12px;color:${c.campaign === '—' ? 'var(--text-light)' : 'var(--text-muted)'}">${c.campaign}</span></td>
+              <td><span style="font-size:12px;color:var(--text-light)">${c.lastActivity}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderSignalsFeed() {
+  const hot = SIGNALS_FEED.filter(s => s.priority === 'hot').length;
+  const warm = SIGNALS_FEED.filter(s => s.priority === 'warm').length;
+  const cold = SIGNALS_FEED.filter(s => s.priority === 'cold').length;
+  const typeLabels = { intent: 'Intent', hiring: 'Hiring', funding: 'Funding', engagement: 'Engagement', tech: 'Tech Change', news: 'News' };
+
+  const typeCount = (type) => SIGNALS_FEED.filter(s => s.type === type).length;
+
+  return `
+    <div class="page-header">
+      <div>
+        <h1>Signals</h1>
+        <p>Real-time buying signals across your ${[...new Set(SIGNALS_FEED.map(s => s.account))].length} target accounts</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-secondary">Configure alerts</button>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-card"><div class="stat-label">Total Signals</div><div class="stat-value">${SIGNALS_FEED.length}</div><div class="stat-change up">last 7 days</div></div>
+      <div class="stat-card"><div class="stat-label" style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#C44D4D;display:inline-block"></span>Hot</div><div class="stat-value" style="color:#C44D4D">${hot}</div><div class="stat-change up">act now</div></div>
+      <div class="stat-card"><div class="stat-label" style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#C88C28;display:inline-block"></span>Warm</div><div class="stat-value" style="color:#C88C28">${warm}</div><div class="stat-change up">follow up</div></div>
+      <div class="stat-card"><div class="stat-label" style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:var(--text-light);display:inline-block"></span>Cold</div><div class="stat-value">${cold}</div><div class="stat-change">monitor</div></div>
+    </div>
+    <div class="signals-layout">
+      <div class="signals-feed">
+        ${SIGNALS_FEED.map(s => `
+          <div class="signal-item">
+            <div class="signal-icon-wrap ${s.priority}">${s.icon}</div>
+            <div class="signal-body">
+              <div class="signal-headline">${s.signal}</div>
+              <div class="signal-meta">
+                <span class="signal-account-tag">${s.account}</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:var(--radius-pill);background:var(--border);color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.4px">${typeLabels[s.type] || s.type}</span>
+                <span class="signal-time">${s.time}</span>
+              </div>
+              <div class="signal-detail">${s.detail}</div>
+              <span class="signal-action-chip">→ ${s.action}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="signals-sidebar">
+        <div class="signal-filter-group">
+          <div class="signal-filter-label">Priority</div>
+          <div class="signal-filter-opt active">All signals <span class="signal-count-badge">${SIGNALS_FEED.length}</span></div>
+          <div class="signal-filter-opt">🔴 Hot <span class="signal-count-badge hot">${hot}</span></div>
+          <div class="signal-filter-opt">🟡 Warm <span class="signal-count-badge warm">${warm}</span></div>
+          <div class="signal-filter-opt">⚪ Cold <span class="signal-count-badge">${cold}</span></div>
+        </div>
+        <div class="signal-filter-group">
+          <div class="signal-filter-label">Signal Type</div>
+          ${['intent','hiring','funding','engagement','tech','news'].map(t => `
+            <div class="signal-filter-opt">${typeLabels[t]} <span class="signal-count-badge">${typeCount(t)}</span></div>
+          `).join('')}
+        </div>
+        <div class="signal-filter-group">
+          <div class="signal-filter-label">Account</div>
+          ${[...new Set(SIGNALS_FEED.map(s => s.account))].map(acc => `
+            <div class="signal-filter-opt">${acc} <span class="signal-count-badge">${SIGNALS_FEED.filter(s => s.account === acc).length}</span></div>
+          `).join('')}
+        </div>
+      </div>
     </div>
   `;
 }
