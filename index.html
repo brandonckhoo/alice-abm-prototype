@@ -1208,10 +1208,16 @@ function renderSidebar() {
   const aliceMark = `<svg width="22" height="22" viewBox="0 0 32 32" fill="none">
     <path d="M16 2 C15 8 8 15 2 16 C8 17 15 24 16 30 C17 24 24 17 30 16 C24 15 17 8 16 2 Z" fill="#1E2321"/>
   </svg>`;
-  // 11x mark: crescent (large circle minus bite) + small circle
-  const logoMark = `<svg width="24" height="18" viewBox="0 0 36 28" fill="none">
-    <path d="M 12 4 A 11 11 0 1 1 22 17 A 9 9 0 0 1 12 4 Z" fill="rgba(30,35,33,0.4)"/>
-    <circle cx="28" cy="8" r="7" fill="rgba(30,35,33,0.4)"/>
+  // 11x mark: large circle with circular cutout (mask) + small circle = real 11x logo shape
+  const logoMark = `<svg width="26" height="21" viewBox="0 0 40 32" fill="none">
+    <defs>
+      <mask id="mask-logo">
+        <rect width="40" height="32" fill="white"/>
+        <circle cx="21" cy="10" r="10" fill="black"/>
+      </mask>
+    </defs>
+    <circle cx="13" cy="18" r="13" mask="url(#mask-logo)" fill="rgba(30,35,33,0.4)"/>
+    <circle cx="30" cy="10" r="8" fill="rgba(30,35,33,0.4)"/>
   </svg>`;
 
   if (!sidebarCollapsed) {
@@ -1258,7 +1264,7 @@ function renderSidebar() {
 }
 
 function renderTopBar() {
-  const markSvg = `<svg width="20" height="15" viewBox="0 0 36 28" fill="none"><path d="M 12 4 A 11 11 0 1 1 22 17 A 9 9 0 0 1 12 4 Z" fill="var(--text-primary)"/><circle cx="28" cy="8" r="7" fill="var(--text-primary)"/></svg>`;
+  const markSvg = `<svg width="22" height="18" viewBox="0 0 40 32" fill="none"><defs><mask id="mask-topbar"><rect width="40" height="32" fill="white"/><circle cx="21" cy="10" r="10" fill="black"/></mask></defs><circle cx="13" cy="18" r="13" mask="url(#mask-topbar)" fill="var(--text-primary)"/><circle cx="30" cy="10" r="8" fill="var(--text-primary)"/></svg>`;
   const a = selectedAccount;
   let crumbs = '';
   switch(currentView) {
