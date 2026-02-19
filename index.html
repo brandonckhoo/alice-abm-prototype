@@ -2223,18 +2223,55 @@ function renderCampaignDetail() {
 
       ` : `
       <!-- Analytics tab -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+
+      <!-- Funnel -->
+      <div style="padding:24px;border-radius:var(--radius-md);border:1px solid var(--border-light);background:var(--surface);margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:20px">Outreach funnel</div>
+        ${(() => {
+          const stages = [
+            { label:'Contacted',  n:9,  pct:100, color:'var(--accent)',   conv:null          },
+            { label:'Opened',     n:4,  pct:44,  color:'#3B82F6',        conv:'44% opened'  },
+            { label:'Replied',    n:1,  pct:11,  color:'#F59E0B',        conv:'25% replied' },
+            { label:'Meeting',    n:0,  pct:0,   color:'#10B981',        conv:'0% booked'   },
+          ];
+          return stages.map((s, i) => `
+            ${i > 0 ? `
+              <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin:2px 0">
+                <div style="height:20px;width:1.5px;background:var(--border-light);margin:0 auto"></div>
+                <span style="font-size:11px;color:var(--text-light);position:absolute;margin-left:120px">${s.conv}</span>
+              </div>
+            ` : ''}
+            <div style="display:flex;align-items:center;gap:14px">
+              <div style="width:90px;flex-shrink:0;text-align:right">
+                <div style="font-size:12px;font-weight:600;color:var(--text-secondary)">${s.label}</div>
+              </div>
+              <div style="flex:1;position:relative;height:36px;display:flex;align-items:center">
+                <div style="position:absolute;left:0;right:0;height:36px;background:var(--border-light);border-radius:4px;opacity:0.4"></div>
+                <div style="position:relative;height:36px;width:${Math.max(s.pct,2)}%;background:${s.color};border-radius:4px;opacity:${s.n===0?0.25:0.85};transition:width 600ms ease;display:flex;align-items:center;padding:0 12px;min-width:${s.n>0?'40px':'0'}">
+                  ${s.n > 0 ? `<span style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap">${s.n}</span>` : ''}
+                </div>
+                ${s.n === 0 ? `<span style="font-size:13px;font-weight:700;color:var(--text-light);margin-left:8px">0</span>` : ''}
+              </div>
+              <div style="width:48px;flex-shrink:0;text-align:right">
+                <span style="font-size:13px;font-weight:700;color:${s.pct>0?'var(--text-primary)':'var(--text-light)'}">${s.pct}%</span>
+              </div>
+            </div>
+          `).join('');
+        })()}
+      </div>
+
+      <!-- 2-col metric cards -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
         ${[
-          { label:'Open rate',      value:'44%',  sub:'4 of 9 messages opened',    trend:'+12% vs avg', up:true  },
-          { label:'Reply rate',     value:'11%',  sub:'1 of 9 messages replied',   trend:'On track',    up:true  },
-          { label:'Click rate',     value:'11%',  sub:'1 click tracked',           trend:'Email only',  up:false },
-          { label:'Meeting rate',   value:'0%',   sub:'0 meetings booked',         trend:'In progress', up:false },
+          { label:'Open rate',   value:'44%', sub:'4 / 9 sent',        color:'#3B82F6' },
+          { label:'Reply rate',  value:'11%', sub:'1 / 9 sent',        color:'#F59E0B' },
+          { label:'Click rate',  value:'11%', sub:'1 click tracked',   color:'var(--accent)' },
+          { label:'Meetings',    value:'0',   sub:'In progress',       color:'var(--text-light)' },
         ].map(m => `
-          <div style="padding:20px;border-radius:var(--radius-md);border:1px solid var(--border-light);background:var(--surface)">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:8px">${m.label}</div>
-            <div style="font-size:28px;font-weight:800;color:var(--text-primary);margin-bottom:4px">${m.value}</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">${m.sub}</div>
-            <span style="font-size:11px;font-weight:600;color:${m.up?'var(--success)':'var(--text-light)'}">↑ ${m.trend}</span>
+          <div style="padding:16px;border-radius:var(--radius-md);border:1px solid var(--border-light);background:var(--surface)">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:6px">${m.label}</div>
+            <div style="font-size:22px;font-weight:800;color:${m.color};margin-bottom:2px">${m.value}</div>
+            <div style="font-size:11px;color:var(--text-muted)">${m.sub}</div>
           </div>
         `).join('')}
       </div>
