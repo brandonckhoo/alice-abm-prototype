@@ -1155,6 +1155,7 @@ let signalsAccountFilter = 'all';
 let selectedAccounts = ACCOUNTS.slice(0, 4).map(a => a.id);
 let selectedChannels = ['Email', 'LinkedIn'];
 let showAddMoreDropdown = false;
+let accountSearch = '';
 let campaignKB = [
   { name: 'Customer Case Study — Fintech 2025.pdf', type: 'PDF', size: '1.2 MB', icon: '📄' },
   { name: 'Product One-Pager Q1 2026.pdf', type: 'PDF', size: '840 KB', icon: '📄' },
@@ -1847,19 +1848,6 @@ function renderCampaignBuilder() {
         <div style="border-top:1px solid var(--border-light);margin:0 0 20px;"></div>
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:14px">Campaign Goal</div>
         <div class="form-group">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-            ${[
-              { id: 'meeting', label: '📅 Book a meeting', desc: 'Get on the calendar' },
-              { id: 'demo',    label: '🖥️ Get a demo',      desc: 'Product walkthrough'  },
-              { id: 'event',   label: '🎟️ Event invite',    desc: 'Conference / webinar'  },
-              { id: 'pipeline',label: '📈 Pipeline',        desc: 'Broad awareness first' }
-            ].map(g => `
-              <div data-goal="${g.id}" style="display:flex;flex-direction:column;gap:2px;padding:10px 16px;border-radius:var(--radius-md);border:1.5px solid ${campaignForm.goal === g.id ? 'var(--accent)' : 'var(--border)'};background:${campaignForm.goal === g.id ? 'rgba(46,111,107,0.06)' : 'var(--surface)'};cursor:pointer;transition:all 150ms ease;min-width:130px">
-                <span style="font-size:13px;font-weight:600;color:${campaignForm.goal === g.id ? 'var(--accent)' : 'var(--text-primary)'}">${g.label}</span>
-                <span style="font-size:11px;color:var(--text-muted)">${g.desc}</span>
-              </div>
-            `).join('')}
-          </div>
           <textarea class="form-input" data-field="goalDescription" rows="3" placeholder="Describe your goal so Alice can tailor outreach…&#10;e.g., Targeting fintech VP Sales ahead of our Series B. Goal is 10 qualified meetings with 200–500 employee companies that recently expanded their SDR team." style="resize:vertical;line-height:1.5">${campaignForm.goalDescription}</textarea>
         </div>
 
@@ -1902,34 +1890,43 @@ function renderCampaignBuilder() {
             <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">or <span data-action="open-csv-modal" style="color:var(--accent);cursor:pointer;font-weight:600">browse files</span></div>
             <div style="font-size:11px;color:var(--text-light)">Required columns: Company Name, Domain · Optional: Industry, Revenue</div>
           </div>
-        ` : `
-        <div class="form-group">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <span style="font-size:12px;font-weight:600;color:var(--text-secondary)">${selectedAccounts.length} account${selectedAccounts.length !== 1 ? 's' : ''} selected</span>
-            <span style="font-size:11px;color:var(--text-light)">${campaignForm.source === 'crm' ? '☁️ From Salesforce · synced 2m ago' : campaignForm.source === 'csv' ? '📄 From CSV upload' : '🗂️ From Alice'}</span>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
-            ${ACCOUNTS.filter(a => selectedAccounts.includes(a.id)).map(a => `
-              <span class="persona-tag selected" data-account-tag="${a.id}" style="cursor:pointer">${a.name} <span style="opacity:0.6">· ${a.signal}</span> <span style="opacity:0.7;margin-left:2px">✕</span></span>
-            `).join('')}
-            <div style="position:relative;display:inline-block">
-              <span class="persona-tag ${showAddMoreDropdown ? 'selected' : ''}" data-action="toggle-add-more">+ Add more</span>
-              ${showAddMoreDropdown ? `
-                <div style="position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);z-index:100;min-width:200px;padding:4px 0">
-                  ${ACCOUNTS.filter(a => !selectedAccounts.includes(a.id)).length === 0
-                    ? `<div style="padding:10px 14px;font-size:12px;color:var(--text-muted)">All accounts selected</div>`
-                    : ACCOUNTS.filter(a => !selectedAccounts.includes(a.id)).map(a => `
-                      <div class="add-account-item" data-add-account="${a.id}" style="padding:9px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px">
-                        <span style="font-weight:500">${a.name}</span>
-                        <span style="color:var(--text-light);font-size:11px;font-weight:600">${a.signal}</span>
-                      </div>
-                    `).join('')}
-                </div>
-              ` : ''}
+        ` : (() => {
+          const filtered = ACCOUNTS.filter(a => !accountSearch || a.name.toLowerCase().includes(accountSearch.toLowerCase()) || (a.industry || '').toLowerCase().includes(accountSearch.toLowerCase()));
+          const allFilteredSelected = filtered.length > 0 && filtered.every(a => selectedAccounts.includes(a.id));
+          return `
+          <div style="border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:4px">
+            <div style="display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--border-light);background:var(--surface)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;color:var(--text-light)"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <input id="account-search-input" class="form-input" type="text" placeholder="Search accounts…" value="${accountSearch}" style="border:none;box-shadow:none;padding:10px 0;font-size:13px;flex:1" oninput="accountSearch=this.value;render()">
+              <span style="font-size:11px;color:var(--text-light);white-space:nowrap;flex-shrink:0">${selectedAccounts.length} selected · ${filtered.length} shown</span>
+            </div>
+            <div style="max-height:220px;overflow-y:auto">
+              ${filtered.length === 0 ? `<div style="padding:16px;text-align:center;font-size:13px;color:var(--text-muted)">No accounts match "${accountSearch}"</div>` :
+                filtered.map(a => {
+                  const sel = selectedAccounts.includes(a.id);
+                  return `<div data-toggle-account="${a.id}" style="display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;transition:background 120ms ease;border-bottom:1px solid var(--border-light);${sel ? 'background:rgba(46,111,107,0.04)' : ''}" onmouseenter="this.style.background='var(--surface-warm)'" onmouseleave="this.style.background='${sel ? 'rgba(46,111,107,0.04)' : 'transparent'}'">
+                    <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid ${sel ? 'var(--accent)' : 'var(--border)'};background:${sel ? 'var(--accent)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 120ms ease">
+                      ${sel ? `<svg width="9" height="7" viewBox="0 0 9 7"><path d="M1 3.5l2.5 2.5 5-5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}
+                    </div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:13px;font-weight:${sel ? '600' : '500'};color:${sel ? 'var(--text-primary)' : 'var(--text-secondary)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.name}</div>
+                      <div style="font-size:11px;color:var(--text-light)">${a.domain || a.name.toLowerCase().replace(' ','')+'.com'} · ${a.industry || 'Technology'}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+                      <span style="font-size:11px;font-weight:700;color:${a.signal >= 80 ? '#C44D4D' : a.signal >= 65 ? '#C88C28' : 'var(--text-light)'}">${a.signal}</span>
+                      <span style="font-size:10px;color:var(--text-light);font-weight:500">${a.status || 'New'}</span>
+                    </div>
+                  </div>`;
+                }).join('')
+              }
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--surface-warm);border-top:1px solid var(--border-light)">
+              <button data-action="toggle-all-accounts" style="font-size:12px;font-weight:600;color:var(--accent);background:none;border:none;cursor:pointer;padding:0">${allFilteredSelected ? 'Deselect all' : 'Select all'} ${accountSearch ? 'filtered' : ''} (${filtered.length})</button>
+              <span style="font-size:11px;color:var(--text-light)">${campaignForm.source === 'crm' ? '☁️ Salesforce · synced 2m ago' : campaignForm.source === 'csv' ? '📄 CSV upload' : '🗂️ Alice accounts'}</span>
             </div>
           </div>
-        </div>
-        `}
+          `;
+        })()}
       ` : builderStep === 1 ? `
         <h2>Target Personas</h2>
         <p class="subtitle">Select which roles to target within each account. Alice will auto-prospect matching contacts.</p>
@@ -2347,6 +2344,17 @@ function bindEvents() {
           showAddMoreDropdown = !showAddMoreDropdown;
           render();
           break;
+        case 'toggle-all-accounts': {
+          const filtered = ACCOUNTS.filter(a => !accountSearch || a.name.toLowerCase().includes(accountSearch.toLowerCase()) || (a.industry||'').toLowerCase().includes(accountSearch.toLowerCase()));
+          const allSel = filtered.every(a => selectedAccounts.includes(a.id));
+          if (allSel) {
+            selectedAccounts = selectedAccounts.filter(id => !filtered.find(a => a.id === id));
+          } else {
+            filtered.forEach(a => { if (!selectedAccounts.includes(a.id)) selectedAccounts.push(a.id); });
+          }
+          render();
+          break;
+        }
         case 'kb-upload':
           if (mockKBIndex < MOCK_KB_FILES.length) {
             campaignKB.push(MOCK_KB_FILES[mockKBIndex]);
@@ -2468,6 +2476,23 @@ function bindEvents() {
       const id = parseInt(el.dataset.accountTag);
       selectedAccounts = selectedAccounts.filter(x => x !== id);
       render();
+    };
+  });
+
+  // Toggle account in checklist
+  document.querySelectorAll('[data-toggle-account]').forEach(el => {
+    el.onclick = (e) => {
+      e.stopPropagation();
+      const id = parseInt(el.dataset.toggleAccount);
+      if (selectedAccounts.includes(id)) {
+        selectedAccounts = selectedAccounts.filter(x => x !== id);
+      } else {
+        selectedAccounts.push(id);
+      }
+      render();
+      // Restore focus/scroll on search input
+      const inp = document.getElementById('account-search-input');
+      if (inp) inp.focus();
     };
   });
 
