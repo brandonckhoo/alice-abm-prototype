@@ -1830,8 +1830,13 @@ function renderCampaignBuilder() {
     </div>
     <div class="builder-body">
       ${builderStep === 0 ? `
-        <h2>Campaign Goal</h2>
-        <p class="subtitle">Tell Alice what you're trying to achieve — she'll optimize messaging, timing, and CTAs accordingly.</p>
+        <div class="form-group">
+          <label class="form-label">Campaign Name</label>
+          <input class="form-input" type="text" placeholder="e.g., Enterprise Fintech Q1" value="${campaignForm.name}" data-field="name">
+        </div>
+
+        <div style="border-top:1px solid var(--border-light);margin:4px 0 20px;"></div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:14px">Campaign Goal</div>
         <div class="form-group">
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
             ${[
@@ -1846,15 +1851,10 @@ function renderCampaignBuilder() {
               </div>
             `).join('')}
           </div>
-          <textarea class="form-input" data-field="goalDescription" rows="3" placeholder="Describe your goal in more detail so Alice can tailor outreach…${'\n'}e.g., We're targeting fintech VP Sales ahead of our Series B. Goal is 10 qualified meetings with companies 200–500 employees that have expanded their SDR team recently." style="resize:vertical;line-height:1.5">${campaignForm.goalDescription}</textarea>
+          <textarea class="form-input" data-field="goalDescription" rows="3" placeholder="Describe your goal so Alice can tailor outreach…&#10;e.g., Targeting fintech VP Sales ahead of our Series B. Goal is 10 qualified meetings with 200–500 employee companies that recently expanded their SDR team." style="resize:vertical;line-height:1.5">${campaignForm.goalDescription}</textarea>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Campaign Name</label>
-          <input class="form-input" type="text" placeholder="e.g., Enterprise Fintech Q1" value="${campaignForm.name}" data-field="name">
-        </div>
-
-        <div style="border-top:1px solid var(--border-light);margin:8px 0 20px;"></div>
+        <div style="border-top:1px solid var(--border-light);margin:4px 0 20px;"></div>
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:14px">Target Accounts</div>
 
         <div class="form-group">
