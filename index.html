@@ -1145,7 +1145,7 @@ let sidebarCollapsed = false;
 let builderStep = 0;
 let importModalOpen = false;
 let importModalTab = 'crm';
-let campaignForm = { name: '', source: 'crm', personas: ['VP Sales', 'CRO'], playbookName: null, goal: 'meeting', goalDescription: '', enrichmentSources: ['linkedin', 'website', 'apollo'] };
+let campaignForm = { name: '', source: 'crm', personas: ['VP Sales', 'CRO'], playbookName: null, goal: 'meeting', goalDescription: '', duration: '8w', enrichmentSources: ['linkedin', 'website', 'apollo'] };
 let contactsFilter = 'all';
 let signalsPriorityFilter = 'all';
 let signalsTypeFilter = 'all';
@@ -1830,12 +1830,19 @@ function renderCampaignBuilder() {
     </div>
     <div class="builder-body">
       ${builderStep === 0 ? `
-        <div class="form-group">
-          <label class="form-label">Campaign Name</label>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:12px">Campaign Name</div>
+        <div style="display:grid;grid-template-columns:1fr 180px;gap:12px;margin-bottom:24px">
           <input class="form-input" type="text" placeholder="e.g., Enterprise Fintech Q1" value="${campaignForm.name}" data-field="name">
+          <select class="form-input" data-field="duration" title="Campaign duration">
+            <option value="4w"  ${campaignForm.duration==='4w'?'selected':''}>4 weeks</option>
+            <option value="6w"  ${campaignForm.duration==='6w'?'selected':''}>6 weeks</option>
+            <option value="8w"  ${campaignForm.duration==='8w'?'selected':''} selected>8 weeks</option>
+            <option value="12w" ${campaignForm.duration==='12w'?'selected':''}>12 weeks</option>
+            <option value="ongoing" ${campaignForm.duration==='ongoing'?'selected':''}>Ongoing</option>
+          </select>
         </div>
 
-        <div style="border-top:1px solid var(--border-light);margin:4px 0 20px;"></div>
+        <div style="border-top:1px solid var(--border-light);margin:0 0 20px;"></div>
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:14px">Campaign Goal</div>
         <div class="form-group">
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
@@ -2005,6 +2012,7 @@ function renderCampaignBuilder() {
             <div class="detail-info-row"><span class="label">Personas</span><span class="value">${campaignForm.personas.join(', ')}</span></div>
             <div class="detail-info-row"><span class="label">Estimated Contacts</span><span class="value">~16-24 contacts</span></div>
             <div class="detail-info-row"><span class="label">Channels</span><span class="value">Email + LinkedIn</span></div>
+            <div class="detail-info-row"><span class="label">Duration</span><span class="value">${{['4w']:'4 weeks',['6w']:'6 weeks',['8w']:'8 weeks',['12w']:'12 weeks',['ongoing']:'Ongoing'}[campaignForm.duration] || '8 weeks'}</span></div>
             <div class="detail-info-row"><span class="label">Threading</span><span class="value">Staggered (2-3 day spacing)</span></div>
             <div class="detail-info-row"><span class="label">Enrichment</span><span class="value">${campaignForm.enrichmentSources.map(s => ({linkedin:'LinkedIn',website:'Company site',apollo:'Apollo',zoominfo:'ZoomInfo',clearbit:'Clearbit',g2:'G2/Bombora'})[s]).join(', ')}</span></div>
           </div>
