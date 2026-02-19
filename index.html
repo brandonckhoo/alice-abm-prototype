@@ -1204,16 +1204,14 @@ function renderSidebar() {
     || (currentView === 'campaign-builder' && id === 'campaigns')
     || (currentView === 'campaign-detail' && id === 'campaigns');
 
-  // Alice mark: sharp 4-pointed sparkle star ✦
-  const aliceMark = `<svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-    <path d="M16 2 C15 8 8 15 2 16 C8 17 15 24 16 30 C17 24 24 17 30 16 C24 15 17 8 16 2 Z" fill="#1E2321"/>
-  </svg>`;
-  // 11x mark: two Pac-Man sectors — large (mouth lower-right) + small (mouth upper-left)
-  // Shape 1: center(16,14) r=14, mouth from 0°→90° (lower-right wedge removed)
-  // Shape 2: center(28,26) r=10, mouth from 180°→270° (upper-left wedge removed)
-  const logoMark = `<svg width="26" height="24" viewBox="0 0 42 38" fill="none">
-    <path d="M 16 14 L 30 14 A 14 14 0 1 0 16 28 Z" fill="rgba(30,35,33,0.4)"/>
-    <path d="M 28 26 L 18 26 A 10 10 0 1 0 28 16 Z" fill="rgba(30,35,33,0.4)"/>
+  // 11x mark: two overlapping circles, fill-rule=evenodd so intersection = transparent
+  // Circle 1 (large): cx=14, cy=13, r=13  — upper-left
+  // Circle 2 (small): cx=28, cy=27, r=10  — lower-right
+  // Overlap area becomes negative space → two crescents form the pinwheel mark
+  const logoMark = `<svg width="24" height="23" viewBox="0 0 40 38" fill="none">
+    <path fill-rule="evenodd" fill="var(--text-primary)"
+      d="M 1 13 a 13 13 0 1 0 26 0 a 13 13 0 1 0 -26 0
+         M 18 27 a 10 10 0 1 0 20 0 a 10 10 0 1 0 -20 0"/>
   </svg>`;
 
   if (!sidebarCollapsed) {
@@ -1221,8 +1219,8 @@ function renderSidebar() {
     return `<nav class="sidebar" style="width:178px;min-width:178px;align-items:stretch;padding:16px 10px 20px;position:relative;overflow:visible">
       <button class="sidebar-collapse-btn" data-action="toggle-sidebar">‹</button>
       <div style="display:flex;align-items:center;gap:8px;padding:2px 4px 16px;border-bottom:1px solid var(--border-light);margin-bottom:8px">
-        ${aliceMark}
-        <span style="color:var(--text-primary);font-weight:600;font-size:14px;letter-spacing:-0.3px">Alice</span>
+        ${logoMark}
+        <span style="color:var(--text-primary);font-weight:600;font-size:14px;letter-spacing:-0.3px">11x</span>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;min-height:0">
         <div class="sidebar-section-label">Workflows</div>
@@ -1260,7 +1258,7 @@ function renderSidebar() {
 }
 
 function renderTopBar() {
-  const markSvg = `<svg width="22" height="20" viewBox="0 0 42 38" fill="none"><path d="M 16 14 L 30 14 A 14 14 0 1 0 16 28 Z" fill="var(--text-primary)"/><path d="M 28 26 L 18 26 A 10 10 0 1 0 28 16 Z" fill="var(--text-primary)"/></svg>`;
+  const markSvg = `<svg width="20" height="19" viewBox="0 0 40 38" fill="none"><path fill-rule="evenodd" fill="var(--text-primary)" d="M 1 13 a 13 13 0 1 0 26 0 a 13 13 0 1 0 -26 0 M 18 27 a 10 10 0 1 0 20 0 a 10 10 0 1 0 -20 0"/></svg>`;
   const a = selectedAccount;
   let crumbs = '';
   switch(currentView) {
