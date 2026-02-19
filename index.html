@@ -1125,6 +1125,70 @@ const ACCOUNTS = [
   { id: 8, name: 'Vercel', domain: 'vercel.com', industry: 'Developer Tools', employees: '500+', hq: 'San Francisco, CA', signal: 45, signalLevel: 'cold', status: 'paused', contacts: 2, threaded: 0, meetings: 0, campaign: '—' },
 ];
 
+// Extended Salesforce account list (124 accounts synced)
+const CRM_ACCOUNTS = [
+  { id:1,  name:'Stripe',           domain:'stripe.com',          industry:'Fintech',          signal:92, status:'engaged'     },
+  { id:2,  name:'Databricks',       domain:'databricks.com',      industry:'Data & AI',         signal:85, status:'engaged'     },
+  { id:3,  name:'Figma',            domain:'figma.com',           industry:'Design Tools',      signal:78, status:'prospecting' },
+  { id:4,  name:'Notion',           domain:'notion.so',           industry:'Productivity',      signal:74, status:'prospecting' },
+  { id:5,  name:'Plaid',            domain:'plaid.com',           industry:'Fintech',           signal:71, status:'new'         },
+  { id:6,  name:'Airtable',         domain:'airtable.com',        industry:'Productivity',      signal:65, status:'new'         },
+  { id:7,  name:'Ramp',             domain:'ramp.com',            industry:'Fintech',           signal:58, status:'new'         },
+  { id:8,  name:'Vercel',           domain:'vercel.com',          industry:'Developer Tools',   signal:45, status:'paused'      },
+  { id:9,  name:'Brex',             domain:'brex.com',            industry:'Fintech',           signal:88, status:'new'         },
+  { id:10, name:'Rippling',         domain:'rippling.com',        industry:'HR Tech',           signal:84, status:'new'         },
+  { id:11, name:'Deel',             domain:'deel.com',            industry:'HR Tech',           signal:81, status:'new'         },
+  { id:12, name:'Retool',           domain:'retool.com',          industry:'Developer Tools',   signal:79, status:'new'         },
+  { id:13, name:'Lattice',          domain:'lattice.com',         industry:'HR Tech',           signal:76, status:'new'         },
+  { id:14, name:'Carta',            domain:'carta.com',           industry:'Fintech',           signal:74, status:'new'         },
+  { id:15, name:'Loom',             domain:'loom.com',            industry:'Productivity',      signal:72, status:'new'         },
+  { id:16, name:'Linear',           domain:'linear.app',          industry:'Developer Tools',   signal:70, status:'new'         },
+  { id:17, name:'Clerk',            domain:'clerk.com',           industry:'Developer Tools',   signal:68, status:'new'         },
+  { id:18, name:'Merge',            domain:'merge.dev',           industry:'Integration',       signal:67, status:'new'         },
+  { id:19, name:'Ironclad',         domain:'ironcladapp.com',     industry:'Legal Tech',        signal:66, status:'new'         },
+  { id:20, name:'Mosaic',           domain:'mosaictech.com',      industry:'Finance',           signal:65, status:'new'         },
+  { id:21, name:'Coda',             domain:'coda.io',             industry:'Productivity',      signal:64, status:'new'         },
+  { id:22, name:'Hex',              domain:'hex.tech',            industry:'Data & AI',         signal:63, status:'new'         },
+  { id:23, name:'Temporal',         domain:'temporal.io',         industry:'Developer Tools',   signal:62, status:'new'         },
+  { id:24, name:'Census',           domain:'getcensus.com',       industry:'Data & AI',         signal:61, status:'new'         },
+  { id:25, name:'Ashby',            domain:'ashbyhq.com',         industry:'HR Tech',           signal:60, status:'new'         },
+  { id:26, name:'Drata',            domain:'drata.com',           industry:'Security',          signal:59, status:'new'         },
+  { id:27, name:'Vanta',            domain:'vanta.com',           industry:'Security',          signal:58, status:'new'         },
+  { id:28, name:'Panther',          domain:'runpanther.io',       industry:'Security',          signal:57, status:'new'         },
+  { id:29, name:'LaunchDarkly',     domain:'launchdarkly.com',    industry:'Developer Tools',   signal:56, status:'new'         },
+  { id:30, name:'Statsig',          domain:'statsig.com',         industry:'Developer Tools',   signal:55, status:'new'         },
+  { id:31, name:'Amplitude',        domain:'amplitude.com',       industry:'Analytics',         signal:54, status:'new'         },
+  { id:32, name:'Mixpanel',         domain:'mixpanel.com',        industry:'Analytics',         signal:53, status:'new'         },
+  { id:33, name:'Segment',          domain:'segment.com',         industry:'Data & AI',         signal:52, status:'new'         },
+  { id:34, name:'Stytch',           domain:'stytch.com',          industry:'Developer Tools',   signal:51, status:'new'         },
+  { id:35, name:'WorkOS',           domain:'workos.com',          industry:'Developer Tools',   signal:50, status:'new'         },
+  { id:36, name:'Cohere',           domain:'cohere.com',          industry:'AI',                signal:87, status:'new'         },
+  { id:37, name:'Scale AI',         domain:'scale.com',           industry:'AI',                signal:83, status:'new'         },
+  { id:38, name:'Weights & Biases', domain:'wandb.ai',            industry:'AI',                signal:80, status:'new'         },
+  { id:39, name:'Hugging Face',     domain:'huggingface.co',      industry:'AI',                signal:77, status:'new'         },
+  { id:40, name:'Mistral AI',       domain:'mistral.ai',          industry:'AI',                signal:75, status:'new'         },
+  { id:41, name:'Together AI',      domain:'together.ai',         industry:'AI',                signal:73, status:'new'         },
+  { id:42, name:'Anyscale',         domain:'anyscale.com',        industry:'AI',                signal:71, status:'new'         },
+  { id:43, name:'Modal',            domain:'modal.com',           industry:'Developer Tools',   signal:69, status:'new'         },
+  { id:44, name:'Runway',           domain:'runwayml.com',        industry:'AI',                signal:67, status:'new'         },
+  { id:45, name:'ElevenLabs',       domain:'elevenlabs.io',       industry:'AI',                signal:65, status:'new'         },
+  { id:46, name:'Glean',            domain:'glean.com',           industry:'Enterprise AI',     signal:82, status:'new'         },
+  { id:47, name:'Guru',             domain:'getguru.com',         industry:'Enterprise AI',     signal:61, status:'new'         },
+  { id:48, name:'Highspot',         domain:'highspot.com',        industry:'Sales Enablement',  signal:78, status:'new'         },
+  { id:49, name:'Seismic',          domain:'seismic.com',         industry:'Sales Enablement',  signal:72, status:'new'         },
+  { id:50, name:'Showpad',          domain:'showpad.com',         industry:'Sales Enablement',  signal:66, status:'new'         },
+  { id:51, name:'Salesloft',        domain:'salesloft.com',       industry:'Sales Tech',        signal:89, status:'new'         },
+  { id:52, name:'Outreach',         domain:'outreach.io',         industry:'Sales Tech',        signal:86, status:'new'         },
+  { id:53, name:'Apollo',           domain:'apollo.io',           industry:'Sales Tech',        signal:83, status:'new'         },
+  { id:54, name:'Gong',             domain:'gong.io',             industry:'Revenue Intel',     signal:81, status:'new'         },
+  { id:55, name:'Chorus',           domain:'chorus.ai',           industry:'Revenue Intel',     signal:74, status:'new'         },
+  { id:56, name:'Clari',            domain:'clari.com',           industry:'Revenue Intel',     signal:71, status:'new'         },
+  { id:57, name:'People.ai',        domain:'people.ai',           industry:'Revenue Intel',     signal:68, status:'new'         },
+  { id:58, name:'Lusha',            domain:'lusha.com',           industry:'Sales Intelligence',signal:64, status:'new'         },
+  { id:59, name:'ZoomInfo',         domain:'zoominfo.com',        industry:'Sales Intelligence',signal:62, status:'new'         },
+  { id:60, name:'Clearbit',         domain:'clearbit.com',        industry:'Data Enrichment',   signal:59, status:'new'         },
+];
+
 const CAMPAIGN_TIMELINE = [
   { persona: 'Sarah Chen', role: 'VP of Sales', action: 'Email opened', detail: 'Personalized intro referencing Stripe\'s expansion into APAC markets and how 11x helped similar fintech teams scale outbound.', time: 'Today, 9:14 AM', status: 'sent', channel: 'Email', opens: 3, clicks: 1 },
   { persona: 'Sarah Chen', role: 'VP of Sales', action: 'Reply received', detail: '"Thanks for reaching out — this is timely. Can you share a case study? We\'re evaluating tools for our APAC SDR team."', time: 'Today, 11:42 AM', status: 'replied', channel: 'Email' },
@@ -1881,7 +1945,7 @@ function renderCampaignBuilder() {
                       <span style="width:6px;height:6px;border-radius:50%;background:#3dbd6e;flex-shrink:0"></span>
                       <span style="font-size:11px;color:#3dbd6e;font-weight:600">Connected</span>
                     </div>
-                    <div style="font-size:11px;color:var(--text-light);margin-top:2px">Synced 2 min ago · 124 accounts</div>
+                    <div style="font-size:11px;color:var(--text-light);margin-top:2px">Synced 2 min ago · ${CRM_ACCOUNTS.length} accounts</div>
                   ` : s.id === 'csv' ? `
                     <div style="font-size:11px;color:var(--text-muted)">${csvUploaded ? '<span style="color:#3dbd6e;font-weight:600">✓ Uploaded</span> · 12 accounts' : 'Click to upload .csv or .xlsx'}</div>
                   ` : `
@@ -1901,7 +1965,8 @@ function renderCampaignBuilder() {
             <div style="font-size:11px;color:var(--text-light)">Required columns: Company Name, Domain · Optional: Industry, Revenue</div>
           </div>
         ` : (() => {
-          const filtered = ACCOUNTS.filter(a => !accountSearch || a.name.toLowerCase().includes(accountSearch.toLowerCase()) || (a.industry || '').toLowerCase().includes(accountSearch.toLowerCase()));
+          const sourceList = campaignForm.source === 'crm' ? CRM_ACCOUNTS : ACCOUNTS;
+          const filtered = sourceList.filter(a => !accountSearch || a.name.toLowerCase().includes(accountSearch.toLowerCase()) || (a.industry || '').toLowerCase().includes(accountSearch.toLowerCase()));
           const allFilteredSelected = filtered.length > 0 && filtered.every(a => selectedAccounts.includes(a.id));
           return `
           <div style="border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:4px">
@@ -2355,7 +2420,8 @@ function bindEvents() {
           render();
           break;
         case 'toggle-all-accounts': {
-          const filtered = ACCOUNTS.filter(a => !accountSearch || a.name.toLowerCase().includes(accountSearch.toLowerCase()) || (a.industry||'').toLowerCase().includes(accountSearch.toLowerCase()));
+          const sourceList = campaignForm.source === 'crm' ? CRM_ACCOUNTS : ACCOUNTS;
+          const filtered = sourceList.filter(a => !accountSearch || a.name.toLowerCase().includes(accountSearch.toLowerCase()) || (a.industry||'').toLowerCase().includes(accountSearch.toLowerCase()));
           const allSel = filtered.every(a => selectedAccounts.includes(a.id));
           if (allSel) {
             selectedAccounts = selectedAccounts.filter(id => !filtered.find(a => a.id === id));
