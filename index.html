@@ -1206,6 +1206,8 @@ let searchQuery = '';
 let filterSignal = 'all';
 let accountDetailTab = 'contacts';
 let campaignDetailTab = 'timeline';
+let showEditCampaignPanel = false;
+let editCampaignSection = 'settings';
 let sidebarCollapsed = false;
 let builderStep = 0;
 let importModalOpen = false;
@@ -1740,6 +1742,7 @@ function renderAccountsDashboard() {
       </table>`}
     </div>
     ${renderImportModal()}
+    ${renderEditCampaignPanel()}
   `;
 }
 
@@ -2154,6 +2157,7 @@ function renderCampaignDetail() {
         <p>Multi-threaded outreach at ${a.name} · 4 personas · Email + LinkedIn</p>
       </div>
       <div class="page-header-actions">
+        <button class="btn btn-secondary" data-action="open-edit-campaign">Edit Campaign</button>
         <button class="btn btn-secondary">Pause Campaign</button>
       </div>
     </div>
@@ -2322,6 +2326,126 @@ function renderCampaignDetail() {
   `;
 }
 
+function renderEditCampaignPanel() {
+  if (!showEditCampaignPanel) return '';
+  const navItems = [
+    { id:'settings',  label:'Campaign settings', icon:'⚙️' },
+    { id:'accounts',  label:'Accounts',           icon:'🏢' },
+    { id:'personas',  label:'Personas',           icon:'👥' },
+    { id:'messaging', label:'Messaging',          icon:'✉️' },
+  ];
+  const sectionContent = {
+    settings: `
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:12px">Campaign details</div>
+      <div class="form-group">
+        <label class="form-label">Campaign Name</label>
+        <input class="form-input" type="text" value="Enterprise Fintech Q1">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group">
+          <label class="form-label">Start date</label>
+          <input class="form-input" type="date" value="2026-03-09">
+        </div>
+        <div class="form-group">
+          <label class="form-label">End date</label>
+          <input class="form-input" type="date" value="2026-05-03">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Campaign goal</label>
+        <textarea class="form-input" rows="3" style="resize:vertical;line-height:1.5">Book 10 qualified meetings with VP Sales and CRO at high-growth fintech companies 200–500 employees ahead of Series B.</textarea>
+      </div>
+    `,
+    accounts: `
+      <div style="background:rgba(200,140,40,0.08);border:1px solid rgba(200,140,40,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:16px;font-size:12px;color:#9a6800">
+        <strong>9 messages already sent</strong> — removing an account won't recall sent messages. New accounts will enter the sequence from step 1.
+      </div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:10px">Active accounts (4)</div>
+      ${ACCOUNTS.slice(0,4).map(a => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-light);margin-bottom:6px;background:var(--surface)">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary)">${a.name}</div>
+            <div style="font-size:11px;color:var(--text-muted)">${a.domain} · ${a.industry}</div>
+          </div>
+          <span style="font-size:11px;font-weight:700;color:${a.signal>=80?'#C44D4D':a.signal>=65?'#C88C28':'var(--text-light)'}">${a.signal}</span>
+          <button style="font-size:12px;color:var(--text-light);background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:4px" title="Remove account">✕</button>
+        </div>
+      `).join('')}
+      <button style="margin-top:8px;width:100%;padding:10px;border:1.5px dashed var(--border);border-radius:var(--radius-sm);background:none;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer">+ Add accounts</button>
+    `,
+    personas: `
+      <div style="background:rgba(200,140,40,0.08);border:1px solid rgba(200,140,40,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:16px;font-size:12px;color:#9a6800">
+        <strong>Removing a persona</strong> pauses future outreach to that role. Contacts already in sequence are unaffected.
+      </div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:10px">Active personas</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
+        ${['VP Sales','CRO','Head of Revenue Ops','SDR Manager'].map(p => `
+          <div style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--radius-pill);border:1.5px solid var(--accent);background:rgba(46,111,107,0.06)">
+            <span style="font-size:12px;font-weight:600;color:var(--accent)">${p}</span>
+            <button style="font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;line-height:1;opacity:0.7">✕</button>
+          </div>
+        `).join('')}
+      </div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:10px">Add persona</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['VP Marketing','CFO','Head of Sales Enablement','Dir. BizOps'].map(p => `
+          <div style="padding:7px 12px;border-radius:var(--radius-pill);border:1.5px solid var(--border);cursor:pointer;font-size:12px;font-weight:600;color:var(--text-muted)">+ ${p}</div>
+        `).join('')}
+      </div>
+    `,
+    messaging: `
+      <div style="background:rgba(46,111,107,0.06);border:1px solid rgba(46,111,107,0.15);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--accent)">
+        Changes apply to <strong>future messages only</strong>. Sent messages are not affected.
+      </div>
+      ${['VP Sales','CRO','Head of Revenue Ops','SDR Manager'].map((p,i) => `
+        <div style="margin-bottom:16px">
+          <label class="form-label">${p}</label>
+          <textarea class="form-input" rows="2" style="resize:vertical;line-height:1.5;font-size:12px">${[
+            'Focus on pipeline generation and SDR team augmentation. Reference their Salesforce integration and team expansion.',
+            'Executive-level ROI angle. Reference how CROs at fintech companies are using AI SDRs to hit $1B+ targets.',
+            'RevOps efficiency angle — reducing manual list building and Salesforce data hygiene overhead.',
+            'Peer-to-peer: how SDR teams run ABM plays at scale without adding headcount.',
+          ][i]}</textarea>
+        </div>
+      `).join('')}
+    `,
+  };
+
+  return `
+    <div style="position:fixed;inset:0;z-index:200;display:flex;pointer-events:none">
+      <div data-action="close-edit-campaign" style="flex:1;background:rgba(0,0,0,0.3);pointer-events:auto;cursor:pointer"></div>
+      <div style="width:480px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;pointer-events:auto;box-shadow:-12px 0 40px rgba(0,0,0,0.1)">
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border-light)">
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--text-primary)">Edit Campaign</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Enterprise Fintech Q1 · Live</div>
+          </div>
+          <button data-action="close-edit-campaign" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--surface-warm);color:var(--text-muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+        <!-- Nav -->
+        <div style="display:flex;border-bottom:1px solid var(--border-light)">
+          ${navItems.map(n => `
+            <div data-edit-section="${n.id}" style="flex:1;padding:10px 4px;text-align:center;cursor:pointer;font-size:11px;font-weight:600;color:${editCampaignSection===n.id?'var(--accent)':'var(--text-muted)'};border-bottom:2px solid ${editCampaignSection===n.id?'var(--accent)':'transparent'};transition:all 150ms ease">
+              <div style="font-size:16px;margin-bottom:2px">${n.icon}</div>
+              ${n.label}
+            </div>
+          `).join('')}
+        </div>
+        <!-- Content -->
+        <div style="flex:1;overflow-y:auto;padding:20px 24px">
+          ${sectionContent[editCampaignSection]}
+        </div>
+        <!-- Footer -->
+        <div style="padding:16px 24px;border-top:1px solid var(--border-light);display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn btn-secondary" data-action="close-edit-campaign">Discard</button>
+          <button class="btn btn-primary" data-action="save-edit-campaign">Save changes</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderImportModal() {
   const tabContent = {
     crm: `
@@ -2468,6 +2592,11 @@ function bindEvents() {
     el.onclick = () => { campaignDetailTab = el.dataset.campaignTab; render(); };
   });
 
+  // Edit campaign panel section nav
+  document.querySelectorAll('[data-edit-section]').forEach(el => {
+    el.onclick = (e) => { e.stopPropagation(); editCampaignSection = el.dataset.editSection; render(); };
+  });
+
   // Contacts persona filter
   document.querySelectorAll('[data-contacts-filter]').forEach(el => {
     el.onclick = () => { contactsFilter = el.dataset.contactsFilter; render(); };
@@ -2527,6 +2656,20 @@ function bindEvents() {
         case 'confirm-import':
           importModalOpen = false;
           showToast('24 accounts imported from Salesforce', 'success');
+          render();
+          break;
+        case 'open-edit-campaign':
+          showEditCampaignPanel = true;
+          editCampaignSection = 'settings';
+          render();
+          break;
+        case 'close-edit-campaign':
+          showEditCampaignPanel = false;
+          render();
+          break;
+        case 'save-edit-campaign':
+          showEditCampaignPanel = false;
+          showToast('Campaign updated — changes apply to future messages', 'success');
           render();
           break;
         case 'open-csv-modal':
