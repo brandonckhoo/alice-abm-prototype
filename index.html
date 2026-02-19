@@ -1145,7 +1145,7 @@ let sidebarCollapsed = false;
 let builderStep = 0;
 let importModalOpen = false;
 let importModalTab = 'crm';
-let campaignForm = { name: '', source: 'crm', personas: ['VP Sales', 'CRO'], playbookName: null, goal: 'meeting', enrichmentSources: ['linkedin', 'website', 'apollo'] };
+let campaignForm = { name: '', source: 'crm', personas: ['VP Sales', 'CRO'], playbookName: null, goal: 'meeting', goalDescription: '', enrichmentSources: ['linkedin', 'website', 'apollo'] };
 let contactsFilter = 'all';
 let signalsPriorityFilter = 'all';
 let signalsTypeFilter = 'all';
@@ -1830,28 +1830,33 @@ function renderCampaignBuilder() {
     </div>
     <div class="builder-body">
       ${builderStep === 0 ? `
-        <h2>Select Target Accounts</h2>
-        <p class="subtitle">Choose which accounts to include in this ABM campaign.</p>
+        <h2>Campaign Goal</h2>
+        <p class="subtitle">Tell Alice what you're trying to achieve — she'll optimize messaging, timing, and CTAs accordingly.</p>
         <div class="form-group">
-          <label class="form-label">Campaign Name</label>
-          <input class="form-input" type="text" placeholder="e.g., Enterprise Fintech Q1" value="${campaignForm.name}" data-field="name">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Campaign Goal <span style="font-weight:400;color:var(--text-muted)">— Alice will optimize messaging and timing toward this outcome</span></label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
             ${[
               { id: 'meeting', label: '📅 Book a meeting', desc: 'Get on the calendar' },
-              { id: 'demo', label: '🖥️ Get a demo', desc: 'Product walkthrough' },
-              { id: 'event', label: '🎟️ Event invite', desc: 'Conference / webinar' },
-              { id: 'pipeline', label: '📈 Pipeline generation', desc: 'Broad awareness first' }
+              { id: 'demo',    label: '🖥️ Get a demo',      desc: 'Product walkthrough'  },
+              { id: 'event',   label: '🎟️ Event invite',    desc: 'Conference / webinar'  },
+              { id: 'pipeline',label: '📈 Pipeline',        desc: 'Broad awareness first' }
             ].map(g => `
-              <div data-goal="${g.id}" style="display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:var(--radius-md);border:1.5px solid ${campaignForm.goal === g.id ? 'var(--accent)' : 'var(--border)'};background:${campaignForm.goal === g.id ? 'rgba(46,111,107,0.06)' : 'var(--surface)'};cursor:pointer;transition:all 150ms ease;min-width:140px">
+              <div data-goal="${g.id}" style="display:flex;flex-direction:column;gap:2px;padding:10px 16px;border-radius:var(--radius-md);border:1.5px solid ${campaignForm.goal === g.id ? 'var(--accent)' : 'var(--border)'};background:${campaignForm.goal === g.id ? 'rgba(46,111,107,0.06)' : 'var(--surface)'};cursor:pointer;transition:all 150ms ease;min-width:130px">
                 <span style="font-size:13px;font-weight:600;color:${campaignForm.goal === g.id ? 'var(--accent)' : 'var(--text-primary)'}">${g.label}</span>
                 <span style="font-size:11px;color:var(--text-muted)">${g.desc}</span>
               </div>
             `).join('')}
           </div>
+          <textarea class="form-input" data-field="goalDescription" rows="3" placeholder="Describe your goal in more detail so Alice can tailor outreach…${'\n'}e.g., We're targeting fintech VP Sales ahead of our Series B. Goal is 10 qualified meetings with companies 200–500 employees that have expanded their SDR team recently." style="resize:vertical;line-height:1.5">${campaignForm.goalDescription}</textarea>
         </div>
+
+        <div class="form-group">
+          <label class="form-label">Campaign Name</label>
+          <input class="form-input" type="text" placeholder="e.g., Enterprise Fintech Q1" value="${campaignForm.name}" data-field="name">
+        </div>
+
+        <div style="border-top:1px solid var(--border-light);margin:8px 0 20px;"></div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:14px">Target Accounts</div>
+
         <div class="form-group">
           <label class="form-label">Account Source</label>
           <select class="form-input" data-field="source">
@@ -1995,6 +2000,7 @@ function renderCampaignBuilder() {
           <div class="detail-info-grid">
             <div class="detail-info-row"><span class="label">Campaign</span><span class="value">${campaignForm.name || 'Enterprise Fintech Q1'}</span></div>
             <div class="detail-info-row"><span class="label">Goal</span><span class="value">${{meeting:'Book a meeting',demo:'Get a demo',event:'Event invite',pipeline:'Pipeline generation'}[campaignForm.goal] || '—'}</span></div>
+            ${campaignForm.goalDescription ? `<div class="detail-info-row"><span class="label">Goal detail</span><span class="value" style="font-style:italic;color:var(--text-muted)">"${campaignForm.goalDescription}"</span></div>` : ''}
             <div class="detail-info-row"><span class="label">Accounts</span><span class="value">4 accounts selected</span></div>
             <div class="detail-info-row"><span class="label">Personas</span><span class="value">${campaignForm.personas.join(', ')}</span></div>
             <div class="detail-info-row"><span class="label">Estimated Contacts</span><span class="value">~16-24 contacts</span></div>
