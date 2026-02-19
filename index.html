@@ -1146,6 +1146,10 @@ let builderStep = 0;
 let importModalOpen = false;
 let importModalTab = 'crm';
 let campaignForm = { name: '', source: 'crm', personas: ['VP Sales', 'CRO'], playbookName: null };
+let contactsFilter = 'all';
+let signalsPriorityFilter = 'all';
+let signalsTypeFilter = 'all';
+let signalsAccountFilter = 'all';
 let selectedAccounts = ACCOUNTS.slice(0, 4).map(a => a.id);
 let selectedChannels = ['Email', 'LinkedIn'];
 let showAddMoreDropdown = false;
@@ -1417,10 +1421,10 @@ function renderContactsList() {
     </div>
     <div class="contacts-filters">
       <div class="search-input" style="flex:1;max-width:320px">${icons.search}<input placeholder="Search contacts..." /></div>
-      <button class="filter-btn active">All</button>
-      <button class="filter-btn">Decision Makers</button>
-      <button class="filter-btn">Champions</button>
-      <button class="filter-btn">Influencers</button>
+      <button class="filter-btn ${contactsFilter === 'all' ? 'active' : ''}" data-contacts-filter="all">All</button>
+      <button class="filter-btn ${contactsFilter === 'Decision Maker' ? 'active' : ''}" data-contacts-filter="Decision Maker">Decision Makers</button>
+      <button class="filter-btn ${contactsFilter === 'Champion' ? 'active' : ''}" data-contacts-filter="Champion">Champions</button>
+      <button class="filter-btn ${contactsFilter === 'Influencer' ? 'active' : ''}" data-contacts-filter="Influencer">Influencers</button>
     </div>
     <div class="contacts-table-wrap">
       <table class="contacts-table">
@@ -1436,7 +1440,7 @@ function renderContactsList() {
           </tr>
         </thead>
         <tbody>
-          ${CONTACTS.map(c => `
+          ${CONTACTS.filter(c => contactsFilter === 'all' || c.persona === contactsFilter).map(c => `
             <tr>
               <td>
                 <div class="contact-name-cell">
@@ -1487,7 +1491,11 @@ function renderSignalsFeed() {
     </div>
     <div class="signals-layout">
       <div class="signals-feed">
-        ${SIGNALS_FEED.map(s => `
+        ${SIGNALS_FEED.filter(s =>
+          (signalsPriorityFilter === 'all' || s.priority === signalsPriorityFilter) &&
+          (signalsTypeFilter === 'all' || s.type === signalsTypeFilter) &&
+          (signalsAccountFilter === 'all' || s.account === signalsAccountFilter)
+        ).map(s => `
           <div class="signal-item">
             <div class="signal-icon-wrap ${s.priority}">${s.icon}</div>
             <div class="signal-body">
@@ -1506,21 +1514,21 @@ function renderSignalsFeed() {
       <div class="signals-sidebar">
         <div class="signal-filter-group">
           <div class="signal-filter-label">Priority</div>
-          <div class="signal-filter-opt active">All signals <span class="signal-count-badge">${SIGNALS_FEED.length}</span></div>
-          <div class="signal-filter-opt">🔴 Hot <span class="signal-count-badge hot">${hot}</span></div>
-          <div class="signal-filter-opt">🟡 Warm <span class="signal-count-badge warm">${warm}</span></div>
-          <div class="signal-filter-opt">⚪ Cold <span class="signal-count-badge">${cold}</span></div>
+          <div class="signal-filter-opt ${signalsPriorityFilter === 'all' ? 'active' : ''}" data-signal-priority="all">All signals <span class="signal-count-badge">${SIGNALS_FEED.length}</span></div>
+          <div class="signal-filter-opt ${signalsPriorityFilter === 'hot' ? 'active' : ''}" data-signal-priority="hot">🔴 Hot <span class="signal-count-badge hot">${hot}</span></div>
+          <div class="signal-filter-opt ${signalsPriorityFilter === 'warm' ? 'active' : ''}" data-signal-priority="warm">🟡 Warm <span class="signal-count-badge warm">${warm}</span></div>
+          <div class="signal-filter-opt ${signalsPriorityFilter === 'cold' ? 'active' : ''}" data-signal-priority="cold">⚪ Cold <span class="signal-count-badge">${cold}</span></div>
         </div>
         <div class="signal-filter-group">
           <div class="signal-filter-label">Signal Type</div>
           ${['intent','hiring','funding','engagement','tech','news'].map(t => `
-            <div class="signal-filter-opt">${typeLabels[t]} <span class="signal-count-badge">${typeCount(t)}</span></div>
+            <div class="signal-filter-opt ${signalsTypeFilter === t ? 'active' : ''}" data-signal-type="${t}">${typeLabels[t]} <span class="signal-count-badge">${typeCount(t)}</span></div>
           `).join('')}
         </div>
         <div class="signal-filter-group">
           <div class="signal-filter-label">Account</div>
           ${[...new Set(SIGNALS_FEED.map(s => s.account))].map(acc => `
-            <div class="signal-filter-opt">${acc} <span class="signal-count-badge">${SIGNALS_FEED.filter(s => s.account === acc).length}</span></div>
+            <div class="signal-filter-opt ${signalsAccountFilter === acc ? 'active' : ''}" data-signal-account="${acc}">${acc} <span class="signal-count-badge">${SIGNALS_FEED.filter(s => s.account === acc).length}</span></div>
           `).join('')}
         </div>
       </div>
@@ -2123,6 +2131,22 @@ function bindEvents() {
   // Account detail tabs
   document.querySelectorAll('[data-account-tab]').forEach(el => {
     el.onclick = () => { accountDetailTab = el.dataset.accountTab; render(); };
+  });
+
+  // Contacts persona filter
+  document.querySelectorAll('[data-contacts-filter]').forEach(el => {
+    el.onclick = () => { contactsFilter = el.dataset.contactsFilter; render(); };
+  });
+
+  // Signals filters
+  document.querySelectorAll('[data-signal-priority]').forEach(el => {
+    el.onclick = () => { signalsPriorityFilter = el.dataset.signalPriority; render(); };
+  });
+  document.querySelectorAll('[data-signal-type]').forEach(el => {
+    el.onclick = () => { signalsTypeFilter = signalsTypeFilter === el.dataset.signalType ? 'all' : el.dataset.signalType; render(); };
+  });
+  document.querySelectorAll('[data-signal-account]').forEach(el => {
+    el.onclick = () => { signalsAccountFilter = signalsAccountFilter === el.dataset.signalAccount ? 'all' : el.dataset.signalAccount; render(); };
   });
 
   // Import modal tabs
