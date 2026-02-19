@@ -962,23 +962,39 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 
 /* ─── Signals ─── */
 .signals-layout { display: flex; flex: 1; overflow: hidden; }
-.signals-feed { flex: 1; overflow-y: auto; padding: 0 8px 24px; }
-.signal-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px; border-radius: var(--radius-lg); margin: 4px 0; cursor: pointer; transition: background var(--transition-fast); border: 1px solid transparent; }
-.signal-item:hover { background: var(--surface-warm); border-color: var(--border-light); }
-.signal-item.selected { background: rgba(46,111,107,0.05); border-color: rgba(46,111,107,0.2); }
-.signal-icon-wrap { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-.signal-icon-wrap.hot { background: rgba(196,77,77,0.10); }
-.signal-icon-wrap.warm { background: rgba(200,140,40,0.10); }
-.signal-icon-wrap.cold { background: rgba(107,115,112,0.10); }
-.signal-body { flex: 1; min-width: 0; }
-.signal-headline { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
-.signal-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.signal-account-tag { font-size: 11px; font-weight: 600; color: var(--accent); background: rgba(46,111,107,0.08); padding: 2px 7px; border-radius: var(--radius-pill); }
-.signal-time { font-size: 11px; color: var(--text-light); }
-.signal-detail { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-.signal-action-chip { margin-top: 8px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--accent); background: rgba(46,111,107,0.08); padding: 4px 10px; border-radius: var(--radius-pill); cursor: pointer; }
+.signals-feed { flex: 1; overflow-y: auto; padding: 0 24px 24px; }
+/* Priority filter pills */
+.signal-feed-filters { display: flex; align-items: center; gap: 6px; padding: 16px 0 12px; }
+.signal-pill { display: flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600; border: 1.5px solid var(--border); color: var(--text-muted); background: var(--surface); cursor: pointer; transition: all var(--transition-fast); }
+.signal-pill:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+.signal-pill.active { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+.signal-pill.hot.active { border-color: #C44D4D; background: rgba(196,77,77,0.08); color: #C44D4D; }
+.signal-pill.warm.active { border-color: #C88C28; background: rgba(200,140,40,0.08); color: #C88C28; }
+/* Signal cards */
+.signal-card { display: flex; border-radius: var(--radius-md); margin: 6px 0; cursor: pointer; transition: all var(--transition-fast); border: 1px solid var(--border-light); background: var(--surface); overflow: hidden; }
+.signal-card:hover { border-color: var(--border); box-shadow: var(--shadow-sm); background: var(--surface-warm); }
+.signal-card.selected { border-color: rgba(46,111,107,0.3); background: rgba(46,111,107,0.03); }
+.signal-card-stripe { width: 4px; flex-shrink: 0; }
+.signal-card-stripe.hot { background: var(--signal-hot); }
+.signal-card-stripe.warm { background: var(--signal-warm); }
+.signal-card-stripe.cold { background: var(--border); }
+.signal-card-body { flex: 1; padding: 14px 16px; min-width: 0; }
+.signal-card-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.signal-account-tag { font-size: 11px; font-weight: 600; color: var(--accent); background: rgba(46,111,107,0.08); padding: 2px 7px; border-radius: var(--radius-pill); flex-shrink: 0; }
+.signal-type-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; padding: 2px 7px; border-radius: var(--radius-pill); }
+.signal-type-badge.intent { background: rgba(46,111,107,0.1); color: var(--accent); }
+.signal-type-badge.hiring { background: rgba(59,130,246,0.1); color: #3B82F6; }
+.signal-type-badge.funding { background: rgba(16,185,129,0.1); color: #059669; }
+.signal-type-badge.engagement { background: rgba(139,92,246,0.1); color: #8B5CF6; }
+.signal-type-badge.tech { background: rgba(245,158,11,0.1); color: #D97706; }
+.signal-type-badge.news { background: rgba(107,114,128,0.12); color: #6B7280; }
+.signal-time { font-size: 11px; color: var(--text-light); margin-left: auto; flex-shrink: 0; }
+.signal-headline { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.signal-detail { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px; }
+.signal-action-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--accent); background: rgba(46,111,107,0.08); padding: 4px 10px; border-radius: var(--radius-pill); cursor: pointer; }
 .signal-action-chip:hover { background: rgba(46,111,107,0.14); }
-.signals-sidebar { width: 260px; min-width: 260px; border-left: 1px solid var(--border-light); padding: 20px 16px; overflow-y: auto; }
+/* Sidebar filters */
+.signals-sidebar { width: 220px; min-width: 220px; border-left: 1px solid var(--border-light); padding: 20px 16px; overflow-y: auto; }
 .signal-filter-group { margin-bottom: 20px; }
 .signal-filter-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-light); margin-bottom: 8px; }
 .signal-filter-opt { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: var(--radius-md); cursor: pointer; font-size: 12px; color: var(--text-muted); }
@@ -1561,20 +1577,26 @@ function renderSignalsFeed() {
     </div>
     <div class="signals-layout">
       <div class="signals-feed">
+        <div class="signal-feed-filters">
+          <button class="signal-pill ${signalsPriorityFilter==='all'?'active':''}" data-signal-priority="all">All <span style="font-weight:400;opacity:0.6">${SIGNALS_FEED.length}</span></button>
+          <button class="signal-pill hot ${signalsPriorityFilter==='hot'?'active':''}" data-signal-priority="hot">🔴 Hot <span style="font-weight:400;opacity:0.7">${hot}</span></button>
+          <button class="signal-pill warm ${signalsPriorityFilter==='warm'?'active':''}" data-signal-priority="warm">🟡 Warm <span style="font-weight:400;opacity:0.7">${warm}</span></button>
+          <button class="signal-pill ${signalsPriorityFilter==='cold'?'active':''}" data-signal-priority="cold">⚪ Cold <span style="font-weight:400;opacity:0.7">${cold}</span></button>
+        </div>
         ${SIGNALS_FEED.filter(s =>
           (signalsPriorityFilter === 'all' || s.priority === signalsPriorityFilter) &&
           (signalsTypeFilter === 'all' || s.type === signalsTypeFilter) &&
           (signalsAccountFilter === 'all' || s.account === signalsAccountFilter)
         ).map(s => `
-          <div class="signal-item">
-            <div class="signal-icon-wrap ${s.priority}">${s.icon}</div>
-            <div class="signal-body">
-              <div class="signal-headline">${s.signal}</div>
-              <div class="signal-meta">
+          <div class="signal-card">
+            <div class="signal-card-stripe ${s.priority}"></div>
+            <div class="signal-card-body">
+              <div class="signal-card-top">
                 <span class="signal-account-tag">${s.account}</span>
-                <span style="font-size:10px;padding:2px 6px;border-radius:var(--radius-pill);background:var(--border);color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.4px">${typeLabels[s.type] || s.type}</span>
+                <span class="signal-type-badge ${s.type}">${typeLabels[s.type] || s.type}</span>
                 <span class="signal-time">${s.time}</span>
               </div>
+              <div class="signal-headline">${s.signal}</div>
               <div class="signal-detail">${s.detail}</div>
               <span class="signal-action-chip">→ ${s.action}</span>
             </div>
