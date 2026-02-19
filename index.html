@@ -1145,6 +1145,8 @@ let sidebarCollapsed = false;
 let builderStep = 0;
 let importModalOpen = false;
 let importModalTab = 'crm';
+let showCSVModal = false;
+let csvUploaded = false;
 let campaignForm = { name: '', source: 'crm', personas: ['VP Sales', 'CRO'], playbookName: null, goal: 'meeting', goalDescription: '', duration: '8w', enrichmentSources: ['linkedin', 'website', 'apollo'] };
 let contactsFilter = 'all';
 let signalsPriorityFilter = 'all';
@@ -1865,15 +1867,47 @@ function renderCampaignBuilder() {
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-light);margin-bottom:14px">Target Accounts</div>
 
         <div class="form-group">
-          <label class="form-label">Account Source</label>
-          <select class="form-input" data-field="source">
-            <option value="crm" ${campaignForm.source === 'crm' ? 'selected' : ''}>Import from Salesforce</option>
-            <option value="csv" ${campaignForm.source === 'csv' ? 'selected' : ''}>Upload CSV</option>
-            <option value="manual" ${campaignForm.source === 'manual' ? 'selected' : ''}>Select from existing accounts</option>
-          </select>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            ${[
+              { id: 'crm',    icon: '☁️', label: 'Salesforce',       sub: null },
+              { id: 'csv',    icon: '📄', label: 'Upload CSV',        sub: null },
+              { id: 'manual', icon: '🗂️', label: 'Alice Accounts',    sub: '8 accounts' }
+            ].map(s => {
+              const active = campaignForm.source === s.id;
+              return `<div data-source-card="${s.id}" style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:var(--radius-md);border:1.5px solid ${active ? 'var(--accent)' : 'var(--border)'};background:${active ? 'rgba(46,111,107,0.05)' : 'var(--surface)'};cursor:pointer;transition:all 150ms ease">
+                <span style="font-size:20px;line-height:1;margin-top:1px">${s.icon}</span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:600;color:${active ? 'var(--accent)' : 'var(--text-primary)'};margin-bottom:3px">${s.label}</div>
+                  ${s.id === 'crm' ? `
+                    <div style="display:flex;align-items:center;gap:5px">
+                      <span style="width:6px;height:6px;border-radius:50%;background:#3dbd6e;flex-shrink:0"></span>
+                      <span style="font-size:11px;color:#3dbd6e;font-weight:600">Connected</span>
+                    </div>
+                    <div style="font-size:11px;color:var(--text-light);margin-top:2px">Synced 2 min ago · 124 accounts</div>
+                  ` : s.id === 'csv' ? `
+                    <div style="font-size:11px;color:var(--text-muted)">${csvUploaded ? '<span style="color:#3dbd6e;font-weight:600">✓ Uploaded</span> · 12 accounts' : 'Click to upload .csv or .xlsx'}</div>
+                  ` : `
+                    <div style="font-size:11px;color:var(--text-muted)">8 accounts already in Alice</div>
+                  `}
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
         </div>
+
+        ${campaignForm.source === 'csv' && !csvUploaded ? `
+          <div style="border:1.5px dashed var(--border);border-radius:var(--radius-md);padding:28px 24px;text-align:center;background:var(--surface-warm);margin-bottom:16px">
+            <div style="font-size:24px;margin-bottom:8px">📄</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Drop your CSV here</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">or <span data-action="open-csv-modal" style="color:var(--accent);cursor:pointer;font-weight:600">browse files</span></div>
+            <div style="font-size:11px;color:var(--text-light)">Required columns: Company Name, Domain · Optional: Industry, Revenue</div>
+          </div>
+        ` : `
         <div class="form-group">
-          <label class="form-label">Selected Accounts</label>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:12px;font-weight:600;color:var(--text-secondary)">${selectedAccounts.length} account${selectedAccounts.length !== 1 ? 's' : ''} selected</span>
+            <span style="font-size:11px;color:var(--text-light)">${campaignForm.source === 'crm' ? '☁️ From Salesforce · synced 2m ago' : campaignForm.source === 'csv' ? '📄 From CSV upload' : '🗂️ From Alice'}</span>
+          </div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
             ${ACCOUNTS.filter(a => selectedAccounts.includes(a.id)).map(a => `
               <span class="persona-tag selected" data-account-tag="${a.id}" style="cursor:pointer">${a.name} <span style="opacity:0.6">· ${a.signal}</span> <span style="opacity:0.7;margin-left:2px">✕</span></span>
@@ -1895,6 +1929,7 @@ function renderCampaignBuilder() {
             </div>
           </div>
         </div>
+        `}
       ` : builderStep === 1 ? `
         <h2>Target Personas</h2>
         <p class="subtitle">Select which roles to target within each account. Alice will auto-prospect matching contacts.</p>
@@ -2156,6 +2191,41 @@ function renderImportModal() {
   };
 
   return `
+    <div class="modal-overlay ${showCSVModal ? 'open' : ''}" data-action="close-csv-modal">
+      <div class="modal" style="max-width:480px" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Upload Account List</h3>
+          <button class="modal-close" data-action="close-csv-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="border:1.5px dashed var(--border);border-radius:var(--radius-md);padding:36px 24px;text-align:center;background:var(--surface-warm);margin-bottom:20px;cursor:pointer" data-action="simulate-csv-upload">
+            <div style="font-size:32px;margin-bottom:10px">📄</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Drop your file here</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">or click to browse</div>
+            <div style="display:inline-block;padding:7px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-secondary);background:var(--surface)">Choose file</div>
+          </div>
+          <div style="background:var(--surface-warm);border-radius:var(--radius-sm);padding:12px 14px;font-size:12px;color:var(--text-muted)">
+            <div style="font-weight:600;color:var(--text-secondary);margin-bottom:6px">Required columns</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span style="background:var(--border);padding:2px 8px;border-radius:4px;font-size:11px">Company Name</span>
+              <span style="background:var(--border);padding:2px 8px;border-radius:4px;font-size:11px">Domain</span>
+            </div>
+            <div style="font-weight:600;color:var(--text-secondary);margin:8px 0 6px">Optional</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span style="background:var(--border);padding:2px 8px;border-radius:4px;font-size:11px">Industry</span>
+              <span style="background:var(--border);padding:2px 8px;border-radius:4px;font-size:11px">Employee Count</span>
+              <span style="background:var(--border);padding:2px 8px;border-radius:4px;font-size:11px">Revenue</span>
+              <span style="background:var(--border);padding:2px 8px;border-radius:4px;font-size:11px">Signal Score</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-action="close-csv-modal">Cancel</button>
+          <a href="#" data-action="simulate-csv-upload" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;background:var(--accent);color:#fff;text-decoration:none">Upload & Import</a>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-overlay ${importModalOpen ? 'open' : ''}" data-action="close-modal">
       <div class="modal" onclick="event.stopPropagation()">
         <div class="modal-header">
@@ -2254,6 +2324,21 @@ function bindEvents() {
           showToast('24 accounts imported from Salesforce', 'success');
           render();
           break;
+        case 'open-csv-modal':
+          showCSVModal = true;
+          render();
+          break;
+        case 'close-csv-modal':
+          showCSVModal = false;
+          render();
+          break;
+        case 'simulate-csv-upload':
+          csvUploaded = true;
+          showCSVModal = false;
+          campaignForm.source = 'csv';
+          showToast('12 accounts imported from CSV', 'success');
+          render();
+          break;
         case 'toggle-sidebar':
           sidebarCollapsed = !sidebarCollapsed;
           render();
@@ -2330,6 +2415,16 @@ function bindEvents() {
       } else {
         campaignForm.personas.push(p);
       }
+      render();
+    };
+  });
+
+  // Account source card selection
+  document.querySelectorAll('[data-source-card]').forEach(el => {
+    el.onclick = () => {
+      const src = el.dataset.sourceCard;
+      campaignForm.source = src;
+      if (src === 'csv') { showCSVModal = true; }
       render();
     };
   });
